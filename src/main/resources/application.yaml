@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/twitter?characterEncoding=utf-8&useSSL=false
+    username: root
+    password: 821552
+#  jackson:
+#    date-format: yyyyMMdd
+#    time-zone: GMT+8
+
+mybatis-plus:
+  type-aliases-package: com.twitter.twitterplus.bean
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        max-age: 3600
+        secure: true
+##  port: 8443
+#  ssl:
+#    key-store-password: 821552
+#    key-store-type: PSCK12
+#    key-store: classpath:keystore.p12
+##    enabled: true
