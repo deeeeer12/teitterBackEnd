@@ -32,7 +32,8 @@ public class TweetController {
             //设置时间戳
             tweet.setUpdatetime(System.currentTimeMillis());
             tweet.setNickName((String) request.getSession().getAttribute("nickName"));
-            tweet.setUserName("@"+request.getSession().getAttribute("userName"));
+            tweet.setUserName((String) request.getSession().getAttribute("userName"));
+            tweet.setAvatarUrl((String) request.getSession().getAttribute("avatarUrl"));
             tweetMapper.insert(tweet);
             map.put("message","发布推文成功！");
             map.put("status","200");
@@ -52,13 +53,13 @@ public class TweetController {
     public Map getAllTweet(@PathVariable("pageNum") Integer pageNum,HttpServletRequest request){
         Map<String,Object> map = new HashMap<>();
         //验证是否登录，如果已经登陆，返回该用户的用户信息
-        if(request.getSession().getAttribute("userName")!=null){
+        if(request.getSession().getAttribute("userInfo")!=null){
             map.put("isLogin",true);
             map.put("userInfo",request.getSession().getAttribute("userInfo"));
         }else{
             map.put("isLogin",false);
         }
-        Page<Tweet> page = new Page<>(pageNum,10);
+        Page<Tweet> page = new Page<>(pageNum,20);
         QueryWrapper<Tweet> wrapper = new QueryWrapper<>();
         wrapper.orderByDesc("updatetime");
         Page<Tweet> tweets = tweetMapper.selectPage(page, wrapper);
@@ -73,6 +74,25 @@ public class TweetController {
             map.put("data", tweets.getRecords());
         }
         return map;
+    }
+
+    @GetMapping("/teitter/api/like")
+    public Map like(long tweetId){
+        Map<String,Object> map = new HashMap<>();
+        Tweet tweet = tweetMapper.selectById(tweetId);
+        if(null != tweet){
+            int oldCount = tweet.getLikeCount();
+            tweet.setLikeCount(++oldCount);
+            map.put("status",200);
+            map.put("message","点赞成功");
+            map.put("当前点赞数为",tweet.getLikeCount());
+            return map;
+        }else {
+            map.put("status",400);
+            map.put("messasge","点赞失败,未找到该条评论");
+            return map;
+
+        }
     }
 
 }

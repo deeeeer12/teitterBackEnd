@@ -13,7 +13,7 @@ public class FileUtil {
     /**
      * 上传文件返回URL
      */
-    public static String uplods(MultipartFile file) throws IOException {
+    public static String uplods(MultipartFile file,String filePrefix) throws IOException {
         //判断文件大小
         //TODO
 
@@ -21,7 +21,7 @@ public class FileUtil {
         final String fileSuffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.')+1);
 
         //文件名
-        String fileName = UUID.randomUUID().toString().replace("-","")+"."+fileSuffix;
+        String fileName = filePrefix +"."+fileSuffix;
 
         //文件写入
         File descFile = new File(UPLOAD_PATH, fileName);

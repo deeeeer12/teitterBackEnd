@@ -9,7 +9,7 @@ public class OriginConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
 
         registry.addMapping("/**")
-                .allowedOriginPatterns("http://180.76.112.86:8888")
+                .allowedOriginPatterns("https://180.76.112.86")
                 .allowedHeaders("*")
                 .allowedMethods("*")
                 .allowCredentials(true)

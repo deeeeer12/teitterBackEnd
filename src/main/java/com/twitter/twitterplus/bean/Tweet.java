@@ -21,6 +21,7 @@ public class Tweet {
     private int commentCount;
     private int forwardCount;
     private Long updatetime;
+    private String avatarUrl;
     @TableLogic
     private int isDeleted;
 

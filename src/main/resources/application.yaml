@@ -18,9 +18,10 @@ server:
         same-site: none
         max-age: 3600
         secure: true
-##  port: 8443
-#  ssl:
-#    key-store-password: 821552
-#    key-store-type: PSCK12
-#    key-store: classpath:keystore.p12
-##    enabled: true
+        http-only: false
+  port: 8090
+  ssl:
+    key-store-password: 4q57gk132f237r
+    key-store-type: JKS
+    key-store: classpath:heron.love.jks
+    enabled: true
