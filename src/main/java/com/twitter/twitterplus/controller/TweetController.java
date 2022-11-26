@@ -1,9 +1,11 @@
 package com.twitter.twitterplus.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.twitter.twitterplus.bean.Tweet;
 import com.twitter.twitterplus.mapper.TweetMapper;
+import com.twitter.twitterplus.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -76,17 +78,24 @@ public class TweetController {
         return map;
     }
 
-    @GetMapping("/teitter/api/incrlike")
+    @PostMapping("/teitter/api/incrlike")
     public Map incrLike(long tweetId){
         Map<String,Object> map = new HashMap<>();
         Tweet tweet = tweetMapper.selectById(tweetId);
         if(null != tweet){
             int oldCount = tweet.getLikeCount();
-            tweet.setLikeCount(++oldCount);
-            map.put("status",200);
-            map.put("message","点赞成功");
-            map.put("当前点赞数为",tweet.getLikeCount());
-            return map;
+            int newCount = ++oldCount;
+            UpdateWrapper<Tweet> wrapper = new UpdateWrapper<>();
+            wrapper.eq("tweet_id",tweetId);
+            wrapper.set("like_count",newCount);
+            int result = tweetMapper.update(tweet, wrapper);
+            if(result == 1){
+                map.put("status",200);
+                map.put("message","点赞成功");
+                map.put("当前点赞数为",tweet.getLikeCount());
+                return map;
+            }
+            return null;
         }else {
             map.put("status",400);
             map.put("messasge","点赞失败,未找到该条评论");
@@ -94,17 +103,25 @@ public class TweetController {
 
         }
     }
-    @GetMapping("/teitter/api/decrlike")
+
+    @PostMapping("/teitter/api/decrlike")
     public Map decrLike(long tweetId){
         Map<String,Object> map = new HashMap<>();
         Tweet tweet = tweetMapper.selectById(tweetId);
         if(null != tweet){
             int oldCount = tweet.getLikeCount();
-            tweet.setLikeCount(--oldCount);
-            map.put("status",200);
-            map.put("message","取消成功");
-            map.put("当前点赞数为",tweet.getLikeCount());
-            return map;
+            int newCount = --oldCount;
+            UpdateWrapper<Tweet> wrapper = new UpdateWrapper<>();
+            wrapper.eq("tweet_id",tweetId);
+            wrapper.set("count",newCount);
+            int result = tweetMapper.update(tweet, wrapper);
+            if(result==1){
+                map.put("status",200);
+                map.put("message","取消成功");
+                map.put("当前点赞数为",tweet.getLikeCount());
+                return map;
+            }
+            return null;
         }else {
             map.put("status",400);
             map.put("messasge","取消失败失败,未找到该条评论");
