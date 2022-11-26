@@ -76,8 +76,8 @@ public class TweetController {
         return map;
     }
 
-    @GetMapping("/teitter/api/like")
-    public Map like(long tweetId){
+    @GetMapping("/teitter/api/incrlike")
+    public Map incrLike(long tweetId){
         Map<String,Object> map = new HashMap<>();
         Tweet tweet = tweetMapper.selectById(tweetId);
         if(null != tweet){
@@ -92,6 +92,23 @@ public class TweetController {
             map.put("messasge","点赞失败,未找到该条评论");
             return map;
 
+        }
+    }
+    @GetMapping("/teitter/api/decrlike")
+    public Map decrLike(long tweetId){
+        Map<String,Object> map = new HashMap<>();
+        Tweet tweet = tweetMapper.selectById(tweetId);
+        if(null != tweet){
+            int oldCount = tweet.getLikeCount();
+            tweet.setLikeCount(--oldCount);
+            map.put("status",200);
+            map.put("message","取消成功");
+            map.put("当前点赞数为",tweet.getLikeCount());
+            return map;
+        }else {
+            map.put("status",400);
+            map.put("messasge","取消失败失败,未找到该条评论");
+            return map;
         }
     }
 
