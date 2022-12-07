@@ -5,6 +5,9 @@ spring:
     url: jdbc:mysql://localhost:3306/twitter?characterEncoding=utf-8&useSSL=false
     username: root
     password: 821552
+  servlet:
+    multipart:
+      max-file-size: 5MB
 #  jackson:
 #    date-format: yyyyMMdd
 #    time-zone: GMT+8
