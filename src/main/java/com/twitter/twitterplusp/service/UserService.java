@@ -24,4 +24,7 @@ public interface UserService extends IService<User> {
     R regist(User user);
 
 
+    User getSomeoneUserInfo(Long userId);
+
+
 }

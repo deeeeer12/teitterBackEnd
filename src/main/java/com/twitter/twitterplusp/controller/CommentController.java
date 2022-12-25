@@ -8,9 +8,9 @@ import com.twitter.twitterplusp.service.CommentService;
 import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -35,6 +35,14 @@ public class CommentController {
 
         return R.success(null,"评论成功");
 
+    }
+
+    @GetMapping("/getComment/{tweetId}")
+    public Map getComment(@PathVariable("tweetId") Long tweetId){
+
+        Map result = commentService.getCommentByTweetId(tweetId);
+
+        return result;
     }
 
 }

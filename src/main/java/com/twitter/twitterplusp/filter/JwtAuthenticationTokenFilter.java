@@ -1,5 +1,6 @@
 package com.twitter.twitterplusp.filter;
 
+import com.twitter.twitterplusp.common.TokenOverdueException;
 import com.twitter.twitterplusp.entity.LoginUser;
 import com.twitter.twitterplusp.utils.JwtUtil;
 import com.twitter.twitterplusp.utils.RedisCache;
@@ -11,7 +12,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -42,15 +42,13 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             userId = claims.getSubject();
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            throw new RuntimeException("token非法");
+            throw new TokenOverdueException("token非法或已失效");
         }
         //从redis中获取用户信息
         String redisKey = "login:"+userId;
         LoginUser loginUser = redisCache.getCacheObject(redisKey);
         if(Objects.isNull(loginUser)){
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            throw new RuntimeException("用户未登录");
         }
         //存入SecurityContextHolder
         UsernamePasswordAuthenticationToken authenticationToken =

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -52,6 +53,25 @@ public class TweetController {
 
         return result;
 
+    }
+
+    /**
+     * 获取指定用户的所有推文
+     * @param userId
+     * @return
+     */
+    @GetMapping("/getUserTweet/{uid}")
+    public R getUserTweet(@PathVariable("uid") Long userId){
+
+        List userTweet = tweetService.getUserTweet(userId);
+        if (userTweet ==null){
+            R result = new R(400,"获取用户推文失败",null,null);
+            return result;
+        }
+
+        R result = new R(200,"获取用户推文成功",userTweet,null);
+
+        return result;
     }
 
 }

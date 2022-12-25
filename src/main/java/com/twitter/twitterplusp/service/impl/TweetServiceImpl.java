@@ -1,8 +1,6 @@
 package com.twitter.twitterplusp.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.twitter.twitterplusp.common.R;
@@ -13,17 +11,14 @@ import com.twitter.twitterplusp.service.CommentService;
 import com.twitter.twitterplusp.service.LikeService;
 import com.twitter.twitterplusp.service.TweetService;
 import com.twitter.twitterplusp.service.UserService;
-import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -110,7 +105,6 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
                     newComments.add(comment);
                 }
                 //封装推文的评论信息
-                tweetDto.setComments(newComments);
 
                 //查找推文的点赞信息
                 LambdaQueryWrapper<Like> queryWrapperLike = new LambdaQueryWrapper<>();
@@ -178,5 +172,20 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
 
         }
 
+    }
+
+    @Override
+    public List getUserTweet(Long userId) {
+
+        LambdaQueryWrapper<Tweet> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Tweet::getUid,userId)
+                        .orderByDesc(Tweet::getCreateDate);
+
+        List<Tweet> tweets = tweetService.getBaseMapper().selectList(queryWrapper);
+        if (tweets.size()==0){
+            return null;
+        }
+
+        return tweets;
     }
 }

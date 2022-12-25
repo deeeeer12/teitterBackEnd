@@ -9,6 +9,7 @@ import com.twitter.twitterplusp.entity.UserRole;
 import com.twitter.twitterplusp.mapper.UserMapper;
 import com.twitter.twitterplusp.service.UserRoleService;
 import com.twitter.twitterplusp.service.UserService;
+import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,8 +43,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Map<String, Object> isLogin() {
 
         //获取SecurityContextHolder中的用户id
-        UsernamePasswordAuthenticationToken authenticationToken =
-                null;
+        UsernamePasswordAuthenticationToken authenticationToken = null;
         try {
             authenticationToken = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         } catch (Exception e) {
@@ -92,6 +92,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserRole userRole = new UserRole(uid,2);
         userRoleService.save(userRole);
         return R.success(null,"创建用户成功");
+    }
+
+    /**
+     * 返回某一个用户的信息
+     * @param userId
+     * @return
+     */
+    @Override
+    public User getSomeoneUserInfo(Long userId) {
+
+        User userInfo = userService.getById(userId);
+
+        return userInfo;
     }
 
 }

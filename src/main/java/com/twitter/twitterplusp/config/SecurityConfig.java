@@ -61,8 +61,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                // com.nrsc.security.security.action.NRSCDetailsService中的loadUserByUsername
 //                // 进行登陆校验
 //                .loginProcessingUrl("/teitter/api/tweet/getAllTweet/")
-//                //指定使用NRSCAuthenticationSuccessHandler处理登陆成功后的行为
-//                .successHandler(NRSCAuthenticationSuccessHandler)
+////                //指定使用NRSCAuthenticationSuccessHandler处理登陆成功后的行为
+////                .successHandler(NRSCAuthenticationSuccessHandler)
 //                //指定使用NNRSCAuthenticationFailureHandler处理登陆失败后的行为
 //                .failureHandler(NRSCAuthenticationFailureHandler)
 //                .and()
@@ -73,13 +73,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 // 对于登录接口 允许匿名访问
-                .antMatchers("/teitter/api/user/login").anonymous()
+//                .antMatchers("/teitter/api/user/login").anonymous()
                 //无论登录没登录，都可以访问
-                .antMatchers("/teitter/api/user/isLogin",
-                        "/teitter/api/tweet/getAllTweet/**",
-                        "/teitter/api/user/regist").permitAll()
+//                .antMatchers("/teitter/api/user/isLogin",
+//                        "/teitter/api/tweet/getAllTweet/**",
+//                        "/teitter/api/user/regist").permitAll()
+        .antMatchers("teitter/api/**").permitAll();
                 // 除上面外的所有请求全部需要鉴权认证
-                .anyRequest().authenticated();
+//                .anyRequest().authenticated();
         //添加过滤器
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
         //配置自定义异常处理器

@@ -44,7 +44,6 @@ public class LikeServiceImpl extends ServiceImpl<LikeMapper, Like> implements Li
                 return "当前推文不存在";
             }
 
-
             //点赞前先去点赞表中查询用户和该条推文所对应的status，若为0.则可以点赞，若为1，则不可
             LambdaQueryWrapper<Like> queryWrapperStatus = new LambdaQueryWrapper<>();
             queryWrapperStatus.eq(Like::getUid,user.getUid())

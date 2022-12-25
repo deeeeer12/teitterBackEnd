@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.twitter.twitterplusp.entity.Comment;
 import com.twitter.twitterplusp.entity.User;
 
+import java.util.Map;
+
 public interface CommentService extends IService<Comment> {
 
     /**
@@ -12,4 +14,5 @@ public interface CommentService extends IService<Comment> {
      */
     void addComment(Long tweetId, User user,Comment comment);
 
+    Map getCommentByTweetId(Long tweetId);
 }

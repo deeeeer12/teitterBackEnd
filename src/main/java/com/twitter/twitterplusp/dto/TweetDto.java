@@ -17,6 +17,5 @@ public class TweetDto extends Tweet {
 
     private boolean likeStatus;
 
-    private List comments;
 
 }
