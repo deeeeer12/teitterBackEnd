@@ -39,6 +39,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private AuthenticationManager authenticationManager;
 
 
+    /**
+     * 判断用户是否登录
+     * @return
+     */
     @Override
     public Map<String, Object> isLogin() {
 
@@ -65,6 +69,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return map;
     }
 
+    /**
+     * 注册用户
+     * @param user
+     * @return
+     */
     @Override
     public R regist(User user) {
         String userName = user.getUserName();

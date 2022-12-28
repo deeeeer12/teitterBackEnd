@@ -2,8 +2,8 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/teitter?characterEncoding=utf-8&useSSL=false
-#    url: jdbc:mysql://localhost:3306/teitterplusp?characterEncoding=utf-8&useSSL=true
+#    url: jdbc:mysql://localhost:3307/teitter?characterEncoding=utf-8&useSSL=false
+    url: jdbc:mysql://localhost:3306/teitterplusp?characterEncoding=utf-8&useSSL=true
     username: root
     password: 821552
   servlet:
@@ -26,19 +26,19 @@ mybatis-plus:
   configuration:
     use-generated-keys: true
 server:
-#  servlet:
-#    session:
-#      cookie:
-#        same-site: none
-#        max-age: 3600
-#        secure: true
-#        http-only: false
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        max-age: 3600
+        secure: true
+        http-only: false
   port: 8090
-#  ssl:
-#    key-store-password: 4q57gk132f237r
-#    key-store-type: JKS
-#    key-store: classpath:heron.love.jks
-#    enabled: true
+  ssl:
+    key-store-password: 4q57gk132f237r
+    key-store-type: JKS
+    key-store: classpath:heron.love.jks
+    enabled: true
 
 ######### 自定义 ##########
 teitter:

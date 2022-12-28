@@ -11,12 +11,16 @@ import com.twitter.twitterplusp.service.CommentService;
 import com.twitter.twitterplusp.service.LikeService;
 import com.twitter.twitterplusp.service.TweetService;
 import com.twitter.twitterplusp.service.UserService;
+import com.twitter.twitterplusp.utils.TweetFileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,7 +41,9 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
     @Autowired
     private CommentService commentService;
 
-    public R send(Tweet tweet,LoginUser loginUser) {
+    public static final String MY_URL = "https://www.heron.love:8888";
+
+    public R send(Tweet tweet, LoginUser loginUser, MultipartFile file) {
 
         if(loginUser == null){
             return R.error("请先登录再发忒");
@@ -47,7 +53,15 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
             return R.error("内容不能为空");
         }
 
+//        /images/tweetFile/admin14123123123123.jpg
         tweet.setUid(loginUser.getUser().getUid());
+        try {
+            String imgUrl = TweetFileUtil.uplods(file,loginUser.getUsername()+System.currentTimeMillis());
+            String sqlImgUrl = MY_URL+imgUrl;
+            tweet.setTweetImg(sqlImgUrl);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         tweetService.save(tweet);
         return R.success(null,"发忒成功");
     }
@@ -104,7 +118,6 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
                     BeanUtils.copyProperties(obj,comment,"id","tweetId","isDeleted");
                     newComments.add(comment);
                 }
-                //封装推文的评论信息
 
                 //查找推文的点赞信息
                 LambdaQueryWrapper<Like> queryWrapperLike = new LambdaQueryWrapper<>();
@@ -174,6 +187,11 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
 
     }
 
+    /**
+     * 获取某个用户的所有推文
+     * @param userId
+     * @return
+     */
     @Override
     public List getUserTweet(Long userId) {
 

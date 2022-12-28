@@ -1,6 +1,5 @@
 package com.twitter.twitterplusp.filter;
 
-import com.twitter.twitterplusp.common.TokenOverdueException;
 import com.twitter.twitterplusp.entity.LoginUser;
 import com.twitter.twitterplusp.utils.JwtUtil;
 import com.twitter.twitterplusp.utils.RedisCache;
@@ -21,7 +20,6 @@ import java.util.Objects;
 
 @Component
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
-
     @Autowired
     private RedisCache redisCache;
 
@@ -42,7 +40,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             userId = claims.getSubject();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new TokenOverdueException("token非法或已失效");
+            throw new RuntimeException("token非法");
         }
         //从redis中获取用户信息
         String redisKey = "login:"+userId;

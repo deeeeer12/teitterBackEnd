@@ -2,7 +2,6 @@ package com.twitter.twitterplusp.handler;
 
 import com.alibaba.fastjson.JSON;
 import com.twitter.twitterplusp.common.R;
-import com.twitter.twitterplusp.common.TokenOverdueException;
 import com.twitter.twitterplusp.utils.WebUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;

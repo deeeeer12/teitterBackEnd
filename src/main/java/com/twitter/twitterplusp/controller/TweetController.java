@@ -10,6 +10,8 @@ import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -35,9 +37,9 @@ public class TweetController {
      * @return
      */
     @PostMapping("/sendTwt")
-    public R send(Tweet tweet){
+    public R send(Tweet tweet, MultipartFile file){
         LoginUser loginUser = GetLoginUserInfo.getLoginUser();
-        R result = tweetService.send(tweet, loginUser);
+        R result = tweetService.send(tweet,loginUser,file);
         return result;
     }
 
