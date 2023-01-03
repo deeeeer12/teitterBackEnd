@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -37,6 +38,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    public static final String BASE_URL = "https://www.heron.love:8888/";
 
 
     /**
@@ -84,7 +87,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUserPassword(newPwd);
 
         //创建用户给一个默认头像
-        user.setAvatarUrl("/images/avatarFile/default.jpg");
+        user.setAvatarUrl(BASE_URL+"teitterfile/images/avatar_default.jpg");
+
+        //创建用户给一个默认背景图片
+        user.setBackgroundUrl(BASE_URL+"teitterfile/images/background_default.jpg");
 
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getUserName,userName);
@@ -114,6 +120,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User userInfo = userService.getById(userId);
 
         return userInfo;
+    }
+
+    @Override
+    public String updateSomeoneUserInfo(User user) {
+
+        if(user!=null){
+            LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+            userService.updateById(user);
+        }
+
+        return "修改成功";
     }
 
 }

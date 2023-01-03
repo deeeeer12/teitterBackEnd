@@ -12,14 +12,14 @@ import java.util.Map;
 
 public interface TweetService extends IService<Tweet> {
 
-    R send(Tweet tweet, LoginUser loginUser, MultipartFile file);
+    R send(Tweet tweet, LoginUser loginUser);
 
     /**
      * 获取全部忒文
      * @param pageNum
      * @return
      */
-    R selectAllTwt(Integer pageNum);
+    R selectAllTwt(Integer pageNum,String keyWord);
 
 
     List getUserTweet(Long userId);

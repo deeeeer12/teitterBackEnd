@@ -14,6 +14,8 @@ public class Tweet {
 
     private String content;
 
+    private String nickName;
+
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Long createDate;
 
@@ -24,6 +26,8 @@ public class Tweet {
     private Integer pv;//浏览量
 
     private String tweetImg;
+
+    private String tweetVideo;
 
     //逻辑删除字段
     @TableLogic

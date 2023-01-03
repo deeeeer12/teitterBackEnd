@@ -3,7 +3,6 @@ package com.twitter.twitterplusp.controller;
 import com.twitter.twitterplusp.common.R;
 import com.twitter.twitterplusp.entity.LoginUser;
 import com.twitter.twitterplusp.entity.Tweet;
-import com.twitter.twitterplusp.entity.User;
 import com.twitter.twitterplusp.service.TweetService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.twitter.twitterplusp.utils.GetLoginUserInfo;
@@ -11,9 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Slf4j
@@ -24,12 +20,6 @@ public class TweetController {
     @Autowired
     private TweetService tweetService;
 
-//    @Autowired
-//    private UserService userService;
-//
-//    @Autowired
-//    private LikeService likeService;
-
 
     /**
      * 发送忒文
@@ -37,21 +27,21 @@ public class TweetController {
      * @return
      */
     @PostMapping("/sendTwt")
-    public R send(Tweet tweet, MultipartFile file){
+    public R send(Tweet tweet){
         LoginUser loginUser = GetLoginUserInfo.getLoginUser();
-        R result = tweetService.send(tweet,loginUser,file);
+        R result = tweetService.send(tweet,loginUser);
         return result;
     }
 
     /**
-     * 分页展示全部推文
+     * 分页展示推文
      * @param pageNum
      * @return
      */
-    @GetMapping("/getAllTweet/{pageNum}")
-    public R<Page> page(@PathVariable("pageNum") Integer pageNum){
+    @PostMapping("/getAllTweet")
+    public R<Page> page(Integer pageNum, String keyWord){
 
-        R result = tweetService.selectAllTwt(pageNum);
+        R result = tweetService.selectAllTwt(pageNum,keyWord);
 
         return result;
 

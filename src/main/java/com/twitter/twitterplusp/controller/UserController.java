@@ -6,6 +6,7 @@ import com.twitter.twitterplusp.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -44,12 +45,30 @@ public class UserController {
         return result;
     }
 
+    /**
+     * 获取某个用户的个人信息，可用于信息回显
+     * @param userId
+     * @return
+     */
     @GetMapping("/getUserInfo/{uid}")
     public R getSomeoneUserInfo(@PathVariable("uid") Long userId){
         User userInfo = userService.getSomeoneUserInfo(userId);
         R result = new R(200,"获取用户信息成功",userInfo,null);
 
         return result;
+    }
+
+    /**
+     * 更新用户信息
+     * @param user
+     * @return
+     */
+    @PostMapping("/editUserInfo")
+    public R updateSomeoneUserInfo(User user){
+
+        String result = userService.updateSomeoneUserInfo(user);
+
+        return R.success(null,result);
     }
 
 }

@@ -24,6 +24,10 @@ public class User {
 
     private Integer status;
 
+    private String profile;
+
+    private String backgroundUrl;
+
     //逻辑删除字段
     @TableLogic
     private Integer isDeleted;

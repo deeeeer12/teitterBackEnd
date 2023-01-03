@@ -3,6 +3,7 @@ package com.twitter.twitterplusp.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.twitter.twitterplusp.common.R;
 import com.twitter.twitterplusp.entity.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -26,5 +27,7 @@ public interface UserService extends IService<User> {
 
     User getSomeoneUserInfo(Long userId);
 
+
+    String updateSomeoneUserInfo(User user);
 
 }
