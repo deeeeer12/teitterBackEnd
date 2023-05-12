@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="">
+<mapper namespace="com.twitter.twitterplusp.mapper.MessageMapper">
 
+    <select id="selectNotice" resultType="com.twitter.twitterplusp.model.MessageAndInfoModel">
+        select message.message_id,message.sender_id,message.`status`,message_info.comment,message_info.content,message_info.tweet_id,message_info.msg_type,message_info.create_date
+        from message INNER JOIN message_info
+            on message.msg_info_id = message_info.msg_info_id
+        WHERE message.receiver_id = #{receiverId}
+    </select>
 </mapper>

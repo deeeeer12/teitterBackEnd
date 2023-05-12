@@ -7,22 +7,18 @@ import com.twitter.twitterplusp.common.R;
 import com.twitter.twitterplusp.dto.TweetDto;
 import com.twitter.twitterplusp.entity.*;
 import com.twitter.twitterplusp.mapper.TweetMapper;
-import com.twitter.twitterplusp.service.CommentService;
-import com.twitter.twitterplusp.service.LikeService;
-import com.twitter.twitterplusp.service.TweetService;
-import com.twitter.twitterplusp.service.UserService;
-import com.twitter.twitterplusp.utils.Upload;
+import com.twitter.twitterplusp.service.*;
+import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.TreeSet;
 
 @Slf4j
 @Service
@@ -40,8 +36,31 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
     @Autowired
     private CommentService commentService;
 
+    @Autowired
+    private FansService fansService;
 
-    public R send(Tweet tweet, LoginUser loginUser) {
+    @Autowired
+    private MessageService messageService;
+
+    @Autowired
+    private MessageInfoService messageInfoService;
+
+    @Autowired
+    private TopicService topicService;
+
+    @Autowired
+    private TopicAndTweetService topicAndTweetService;
+
+
+    /**
+     * 发送推文
+     *
+     * @param tweet
+     * @param topicName
+     * @param loginUser
+     * @return
+     */
+    public R send(Tweet tweet, String topicName, LoginUser loginUser) {
 
         if (loginUser == null) {
             return R.error("请先登录再发忒");
@@ -54,7 +73,58 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
         tweet.setNickName(loginUser.getUser().getNickName());
         tweet.setUid(loginUser.getUser().getUid());
 
+        //保存推文到数据库的推文表
         tweetService.save(tweet);
+
+        //如果该推文绑定了话题，则去更新推文&话题表sys_topic_tweet
+        if (topicName!=null||!("".equals(topicName))){
+            LambdaQueryWrapper<Topic> queryWrapperTopic = new LambdaQueryWrapper<>();
+            queryWrapperTopic.eq(Topic::getTopicName,topicName);
+            Topic topic = topicService.getOne(queryWrapperTopic);
+            if (topic!=null){
+                Long id = topic.getId();
+                TopicAndTweet topicAndTweet = new TopicAndTweet();
+                topicAndTweet.setTopicId(id);
+                topicAndTweet.setTweetId(tweet.getTweetId());
+                topicAndTweetService.save(topicAndTweet);
+            }
+
+        }
+
+        //通知该用户的粉丝，该用户更新了推文。
+        TreeSet<Fans> allFans = fansService.getAllFans(loginUser.getUser().getUid());
+        if (allFans!=null){
+            for(Fans fan:allFans){
+                //获取刚发送的推文的自增Id
+                Long tweetId = tweet.getTweetId();
+
+                //向消息详情表中存储相关信息
+                MessageInfo messageInfo = new MessageInfo();
+                messageInfo.setTitle(null);
+                LambdaQueryWrapper<Tweet> infoQueryWrapper = new LambdaQueryWrapper<>();
+                infoQueryWrapper.eq(Tweet::getTweetId,tweetId);
+                Tweet tweetServiceOne = tweetService.getOne(infoQueryWrapper);
+
+                //只取文章内容的前十个字符
+                String content = tweetServiceOne.getContent();
+                if(content.length()>30){
+                    content = content.substring(0,30);
+                }
+                messageInfo.setContent(content+"... ...");
+                messageInfo.setMsgType(5);
+                messageInfo.setTweetId(tweet.getTweetId());
+                messageInfoService.save(messageInfo);
+                Long msgInfoId = messageInfo.getMsgInfoId();
+
+                //向通知表中添加数据
+                Long uid = fan.getUid();
+                Message msg = new Message();
+                msg.setSenderId(loginUser.getUser().getUid());
+                msg.setReceiverId(uid);
+                msg.setMsgInfoId(msgInfoId);
+                messageService.save(msg);
+            }
+        }
 
         return R.success(null,"发忒成功");
 
@@ -69,18 +139,18 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
     @Override
     public R selectAllTwt(Integer pageNum, String keyWord) {
 
-//        LoginUser loginUser = GetLoginUserInfo.getLoginUser();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String name = authentication.getName();
         if (!"anonymousUser".equals(name)) {
             LoginUser loginUser = (LoginUser) authentication.getPrincipal();
 
-            Page<Tweet> pageInfo = new Page<>(pageNum, 20);
+            Page<Tweet> pageInfo = new Page<>(pageNum, 50);
             Page<TweetDto> pageDto = new Page<>();
 
             LambdaQueryWrapper<Tweet> queryWrapper = new LambdaQueryWrapper<>();
             //根据发忒时间降序排序，并进行模糊查询
             queryWrapper
+                    .eq(Tweet::getRank,0)
                     .like(keyWord != null, Tweet::getContent, keyWord)
                     .or()
                     .like(keyWord != null, Tweet::getNickName, keyWord)
@@ -105,14 +175,14 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
                 String userName = user.getUserName();
 
                 //查找推文的评论信息
-                LambdaQueryWrapper<Comment> queryWrapperComment = new LambdaQueryWrapper<>();
-                queryWrapperComment.eq(Comment::getTweetId, tweetId);
-                List<Comment> comments = commentService.getBaseMapper().selectList(queryWrapperComment);
+                LambdaQueryWrapper<Tweet> queryWrapperComment = new LambdaQueryWrapper<>();
+                queryWrapperComment.eq(Tweet::getParentTweetId, tweetId);
+                List<Tweet> comments = tweetService.getBaseMapper().selectList(queryWrapperComment);
 
                 //提取我们想要的评论信息
-                List<Comment> newComments = new ArrayList<>();
-                for (Comment obj : comments) {
-                    Comment comment = new Comment();
+                List<Tweet> newComments = new ArrayList<>();
+                for (Tweet obj : comments) {
+                    Tweet comment = new Tweet();
                     BeanUtils.copyProperties(obj, comment, "id", "tweetId", "isDeleted");
                     newComments.add(comment);
                 }
@@ -124,7 +194,7 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
                 Like like = likeService.getOne(queryWrapperLike);
 
                 //封装当前登录用户对应的推文的点赞信息
-                if (Objects.isNull(like)) {
+                if (Objects.isNull(like) || like.getStatus()==0) {
                     tweetDto.setLikeStatus(false);
                 } else if (like.getStatus() == 1) {
                     tweetDto.setLikeStatus(true);
@@ -178,6 +248,7 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
                 tweetDto.setAvatarUrl(avatar_url);
                 tweetDto.setNickName(nickName);
                 tweetDto.setUserName(userName);
+                tweetDto.setTweetId(tweetId);
                 list.add(tweetDto);
             }
 
@@ -198,6 +269,8 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
     @Override
     public List getUserTweet(Long userId) {
 
+        LoginUser loginUser = GetLoginUserInfo.getLoginUser();
+
         LambdaQueryWrapper<Tweet> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Tweet::getUid, userId)
                 .orderByDesc(Tweet::getCreateDate);
@@ -207,6 +280,56 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
             return null;
         }
 
-        return tweets;
+
+        List<TweetDto> tweetDtoList = new ArrayList<>();
+
+        BeanUtils.copyProperties(tweets,tweetDtoList);
+
+        for(Tweet item:tweets){
+            TweetDto tweetDto = new TweetDto();
+            BeanUtils.copyProperties(item,tweetDto);
+            Long uid = item.getUid();
+            User user = userService.getById(uid);
+            String userName = user.getUserName();
+            String avatarUrl = user.getAvatarUrl();
+
+            Long tweetId = item.getTweetId();
+            //查找推文的点赞信息
+            LambdaQueryWrapper<Like> queryWrapperLike = new LambdaQueryWrapper<>();
+            queryWrapperLike.eq(Like::getUid, loginUser.getUser().getUid())
+                    .eq(Like::getTweetId, tweetId);
+            Like like = likeService.getOne(queryWrapperLike);
+
+            //封装当前登录用户对应的推文的点赞信息
+            if (Objects.isNull(like) || like.getStatus()==0) {
+                tweetDto.setLikeStatus(false);
+            } else if (like.getStatus() == 1) {
+                tweetDto.setLikeStatus(true);
+            }
+
+            tweetDto.setUserName(userName);
+            tweetDto.setAvatarUrl(avatarUrl);
+            tweetDtoList.add(tweetDto);
+        }
+
+        return tweetDtoList;
+    }
+
+    @Override
+    public Boolean delTweets(List<Long> ids) {
+
+        boolean b = tweetService.removeByIds(ids);
+
+        return b;
+    }
+
+    @Override
+    public String delTweet(Long tweetId) {
+
+        boolean result = tweetService.removeById(tweetId);
+        if(result){
+            return "删除成功";
+        }
+        return "删除失败";
     }
 }

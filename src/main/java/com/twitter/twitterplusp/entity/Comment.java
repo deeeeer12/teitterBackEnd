@@ -12,7 +12,7 @@ public class Comment {
 
     private Long id;
 
-    private Long tweetId;
+    private Long ParentTweetId;//父推文id
 
     private Long uid;
 

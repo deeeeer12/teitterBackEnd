@@ -6,8 +6,8 @@ import com.twitter.twitterplusp.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -18,13 +18,13 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-
     /**
      * 注册用户
+     *
      * @return
      */
     @PostMapping("/regist")
-    public R save( User user){
+    public R save(User user) {
 
         R result = userService.regist(user);
 
@@ -35,10 +35,11 @@ public class UserController {
 
     /**
      * 判断用户是否已经登录，是返回true，并返回用户信息； 否返回false
+     *
      * @return
      */
     @GetMapping("/isLogin")
-    public Map isLogin(){
+    public Map isLogin() {
 
         Map result = userService.isLogin();
 
@@ -47,28 +48,28 @@ public class UserController {
 
     /**
      * 获取某个用户的个人信息，可用于信息回显
+     *
      * @param userId
      * @return
      */
     @GetMapping("/getUserInfo/{uid}")
-    public R getSomeoneUserInfo(@PathVariable("uid") Long userId){
-        User userInfo = userService.getSomeoneUserInfo(userId);
-        R result = new R(200,"获取用户信息成功",userInfo,null);
-
+    public Map getSomeoneUserInfo(@PathVariable("uid") Long userId) {
+        Map result = userService.getSomeoneUserInfo(userId);
         return result;
     }
 
     /**
      * 更新用户信息
+     *
      * @param user
      * @return
      */
     @PostMapping("/editUserInfo")
-    public R updateSomeoneUserInfo(User user){
+    public R updateSomeoneUserInfo(User user) {
 
         String result = userService.updateSomeoneUserInfo(user);
 
-        return R.success(null,result);
+        return R.success(null, result);
     }
 
 }

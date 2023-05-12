@@ -1,4 +1,4 @@
-package com.glu.teitter_app.entity;
+package com.twitter.twitterplusp.entity;
 
 import lombok.Data;
 

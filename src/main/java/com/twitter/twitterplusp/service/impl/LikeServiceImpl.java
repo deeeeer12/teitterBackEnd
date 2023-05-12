@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.twitter.twitterplusp.common.CustomException;
-import com.twitter.twitterplusp.entity.Like;
-import com.twitter.twitterplusp.entity.Tweet;
-import com.twitter.twitterplusp.entity.User;
+import com.twitter.twitterplusp.entity.*;
 import com.twitter.twitterplusp.mapper.LikeMapper;
 import com.twitter.twitterplusp.service.LikeService;
+import com.twitter.twitterplusp.service.MessageInfoService;
+import com.twitter.twitterplusp.service.MessageService;
 import com.twitter.twitterplusp.service.TweetService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +25,12 @@ public class LikeServiceImpl extends ServiceImpl<LikeMapper, Like> implements Li
 
     @Autowired
     private TweetService tweetService;
+
+    @Autowired
+    private MessageService messageService;
+
+    @Autowired
+    private MessageInfoService messageInfoService;
 
     /**
      * 点赞
@@ -73,7 +79,35 @@ public class LikeServiceImpl extends ServiceImpl<LikeMapper, Like> implements Li
                 newLike.setStatus(1);
                 this.save(newLike);
 
-                //点赞成功后，推文点赞出+1
+                //向消息详情表中存储相关信息
+                MessageInfo messageInfo = new MessageInfo();
+                messageInfo.setTitle(null);
+                LambdaQueryWrapper<Tweet> queryWrapper = new LambdaQueryWrapper<>();
+                queryWrapper.eq(Tweet::getTweetId,tweet.getTweetId());
+                Tweet tweetServiceOne = tweetService.getOne(queryWrapper);
+                //只取文章内容的前十个字符
+
+                String content = tweetServiceOne.getContent();
+                if(content.length()>30){
+                    content = content.substring(0,30);
+                }
+                messageInfo.setContent(content+"... ...");
+                messageInfo.setMsgType(1);
+                messageInfo.setTweetId(tweet.getTweetId());
+                messageInfoService.save(messageInfo);
+                Long msgInfoId = messageInfo.getMsgInfoId();
+
+                //向消息通知表中存储相关信息
+                Message message = new Message();
+                message.setSenderId(user.getUid());
+                LambdaQueryWrapper<Tweet> qw = new LambdaQueryWrapper<>();
+                qw.eq(Tweet::getTweetId,tweet.getTweetId());
+                Tweet twt = tweetService.getOne(qw);
+                message.setReceiverId(twt.getUid());
+                message.setMsgInfoId(msgInfoId);
+                messageService.save(message);
+
+                //点赞成功后，推文点赞数+1
                 LambdaUpdateWrapper<Tweet> updateWrapper = new LambdaUpdateWrapper<>();
                 updateWrapper.eq(Tweet::getTweetId,tweet.getTweetId())
                         .setSql("`like_count`=`like_count`+1");

@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.twitter.twitterplusp.entity.Comment;
+import com.twitter.twitterplusp.entity.Tweet;
 import com.twitter.twitterplusp.entity.User;
 import lombok.Data;
 
 @Data
-public class CommentDto extends Comment {
+public class CommentDto extends Tweet {
 
     //评论人信息
     private String userName;

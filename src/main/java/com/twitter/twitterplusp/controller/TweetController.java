@@ -9,7 +9,6 @@ import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Slf4j
@@ -27,9 +26,9 @@ public class TweetController {
      * @return
      */
     @PostMapping("/sendTwt")
-    public R send(Tweet tweet){
+    public R send(Tweet tweet,String topicName){
         LoginUser loginUser = GetLoginUserInfo.getLoginUser();
-        R result = tweetService.send(tweet,loginUser);
+        R result = tweetService.send(tweet,topicName,loginUser);
         return result;
     }
 
@@ -64,6 +63,19 @@ public class TweetController {
         R result = new R(200,"获取用户推文成功",userTweet,null);
 
         return result;
+    }
+
+    /**
+     * 根据tweetId删除推文
+     * @param tweetId
+     * @return
+     */
+    @PostMapping("/delTweet")
+    public R delTweetPersonal(Long tweetId){
+
+        String result = tweetService.delTweet(tweetId);
+
+        return R.success(null,result);
     }
 
 }

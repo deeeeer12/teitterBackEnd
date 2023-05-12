@@ -26,12 +26,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private AuthenticationEntryPointImpl authenticationEntryPoint;
 
-//    @Autowired
-//    private AuthenticationSuccessHandler NRSCAuthenticationSuccessHandler;
-//
-//    @Autowired
-//    private AuthenticationFailureHandler NRSCAuthenticationFailureHandler;
-
     /**
      * 暴露Authentication
      *
@@ -71,6 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 //对于登录接口 允许匿名访问
                 .antMatchers("/teitter/api/user/login").anonymous()
+//                .antMatchers("/teitter/api/intoChat").anonymous()
                 //无论登录没登录，都可以访问
                 .antMatchers("/teitter/api/user/isLogin").permitAll()
                 .antMatchers("/teitter/api/user/regist").permitAll()
@@ -78,6 +73,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/teitter/api/tweet/getUserTweet/{uid}").permitAll()
                 .antMatchers("/teitter/api/comment/getComment/{tweetId}").permitAll()
                 .antMatchers("/teitter/api/user/getUserInfo/{uid}").permitAll()
+                .antMatchers("/teitter/app/api/**").permitAll()
+                .antMatchers("/teitter/api/admin/**").permitAll()
+//                .antMatchers("/teitter/api/topic/getTweetsByTopicId").permitAll()
         // 除上面外的所有请求全部需要鉴权认证
                 .anyRequest().authenticated();
         //添加过滤器

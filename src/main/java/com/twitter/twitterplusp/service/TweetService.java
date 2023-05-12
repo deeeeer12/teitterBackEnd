@@ -4,15 +4,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.twitter.twitterplusp.common.R;
 import com.twitter.twitterplusp.entity.LoginUser;
 import com.twitter.twitterplusp.entity.Tweet;
-import com.twitter.twitterplusp.entity.User;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 public interface TweetService extends IService<Tweet> {
 
-    R send(Tweet tweet, LoginUser loginUser);
+    R send(Tweet tweet, String topicName, LoginUser loginUser);
 
     /**
      * 获取全部忒文
@@ -23,4 +20,10 @@ public interface TweetService extends IService<Tweet> {
 
 
     List getUserTweet(Long userId);
+
+    Boolean delTweets(List<Long> ids);
+
+    String delTweet(Long tweetId);
+
+
 }

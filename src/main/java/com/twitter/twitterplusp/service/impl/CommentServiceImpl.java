@@ -1,15 +1,13 @@
 package com.twitter.twitterplusp.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.twitter.twitterplusp.dto.CommentDto;
 import com.twitter.twitterplusp.dto.TweetDto;
 import com.twitter.twitterplusp.entity.*;
 import com.twitter.twitterplusp.mapper.CommentMapper;
-import com.twitter.twitterplusp.service.CommentService;
-import com.twitter.twitterplusp.service.LikeService;
-import com.twitter.twitterplusp.service.TweetService;
-import com.twitter.twitterplusp.service.UserService;
+import com.twitter.twitterplusp.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,21 +34,65 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private MessageService messageService;
+
+    @Autowired
+    private MessageInfoService messageInfoService;
+
     /**
-     * 添加评论
+     * 添加评论推文
      * @param tweetId
      */
     @Override
-    public void addComment(Long tweetId, User user,Comment comment) {
+    public void addComment(Long tweetId, User user,String content) {
 
-        comment.setUid(user.getUid());
-        comment.setTweetId(tweetId);
-        this.save(comment);
+        Tweet tweet = new Tweet();
+        //为评论推文绑定其父推文
+        tweet.setParentTweetId(tweetId);
+        tweet.setContent(content);
+        tweet.setUid(user.getUid());
+        //rank=1代表这是子推文（评论推文）
+        tweet.setRank(1);
+        tweet.setNickName(user.getNickName());
+        tweetService.save(tweet);
+
+        //添加评论成功后，将该推文的评论数量+1
+        LambdaUpdateWrapper<Tweet> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.setSql("comment_count = comment_count + 1 ")
+                        .eq(Tweet::getTweetId,tweetId);
+        tweetService.update(null,updateWrapper);
+
+        //向消息详情表中存储相关信息
+        MessageInfo messageInfo = new MessageInfo();
+        messageInfo.setComment(tweet.getContent());
+        messageInfo.setMsgType(2);
+        messageInfo.setTweetId(tweetId);
+        LambdaQueryWrapper<Tweet> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Tweet::getTweetId,tweetId);
+        Tweet parentTweet = tweetService.getOne(queryWrapper);
+        String parentContent = parentTweet.getContent();
+        if(parentContent.length()>30){
+            parentContent = parentContent.substring(0,30);
+        }
+        messageInfo.setContent(parentContent+"... ...");
+        messageInfoService.save(messageInfo);
+        Long msgInfoId = messageInfo.getMsgInfoId();
+
+        //向消息通知表中存储相关信息
+        Message message = new Message();
+        message.setSenderId(user.getUid());
+        LambdaQueryWrapper<Tweet> qw = new LambdaQueryWrapper<>();
+        qw.eq(Tweet::getTweetId,tweet.getTweetId());
+        Tweet twt = tweetService.getOne(qw);
+        message.setReceiverId(twt.getUid());
+        message.setMsgInfoId(msgInfoId);
+        messageService.save(message);
 
     }
 
     /**
-     * 获取推文所有评论
+     * 获取推文所有评论推文
      * @param tweetId
      * @return
      */
@@ -102,17 +144,17 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
 
 
         //根据tweetId查询出当前推文的所有评论，封装到CommentDto中·
-        LambdaQueryWrapper<Comment> queryWrapperComment = new LambdaQueryWrapper<>();
-        queryWrapperComment.eq(Comment::getTweetId,tweetId)
-                .orderByDesc(Comment::getCreateDate);
+        LambdaQueryWrapper<Tweet> queryWrapperComment = new LambdaQueryWrapper<>();
+        queryWrapperComment.eq(Tweet::getParentTweetId,tweetId)
+                .orderByDesc(Tweet::getCreateDate);
 
-        List<Comment> comments = commentService.getBaseMapper().selectList(queryWrapperComment);
+        List<Tweet> comments = tweetService.getBaseMapper().selectList(queryWrapperComment);
 
         //提取我们想要的评论信息,并添加评论对应的用户信息
-        List<Comment> newComments = new ArrayList<>();
-        for (Comment obj:comments){
+        List<Tweet> newComments = new ArrayList<>();
+        for (Tweet obj:comments){
             CommentDto commentDto = new CommentDto();
-            BeanUtils.copyProperties(obj,commentDto,"id","tweetId","isDeleted");
+            BeanUtils.copyProperties(obj,commentDto,"id","tweetId","isDeleted","parentTweetId","rank");
             Long userId = obj.getUid();
             User userInfo = userService.getById(userId);
             BeanUtils.copyProperties(userInfo,commentDto,"createDate");

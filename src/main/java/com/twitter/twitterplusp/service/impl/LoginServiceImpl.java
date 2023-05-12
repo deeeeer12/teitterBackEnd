@@ -6,6 +6,7 @@ import com.twitter.twitterplusp.entity.LoginUser;
 import com.twitter.twitterplusp.entity.User;
 import com.twitter.twitterplusp.mapper.LoginMapper;
 import com.twitter.twitterplusp.service.LoginService;
+import com.twitter.twitterplusp.service.UserService;
 import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import com.twitter.twitterplusp.utils.JwtUtil;
 import com.twitter.twitterplusp.utils.RedisCache;
@@ -13,12 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class LoginServiceImpl extends ServiceImpl<LoginMapper, User> implements LoginService {
@@ -28,6 +32,9 @@ public class LoginServiceImpl extends ServiceImpl<LoginMapper, User> implements 
 
     @Autowired
     private RedisCache redisCache;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * 获取AuthenticationManager进行用户认证
@@ -63,6 +70,7 @@ public class LoginServiceImpl extends ServiceImpl<LoginMapper, User> implements 
         redisCache.setCacheObject("login:"+userId,loginUser);
         Map<String,String> map = new HashMap<>();
         map.put("token",jwt);
+
         //打包信息发送给前端
         return new R<>(200,"登录成功",loginUser.getUser(),map);
 
@@ -73,10 +81,14 @@ public class LoginServiceImpl extends ServiceImpl<LoginMapper, User> implements 
      * @return
      */
     @Override
-    public R logout() {
+    public R logout(HttpServletRequest request,HttpServletResponse response) {
         //获取SecurityContextHolder中的用户id
         LoginUser loginUser = GetLoginUserInfo.getLoginUser();
         Long userId = loginUser.getUser().getUid();
+
+        //从session中删除用户信息
+        HttpSession session = request.getSession();
+        session.removeAttribute("user");
 
         //删除redis中缓存的用户信息
         redisCache.deleteObject("login:"+userId);

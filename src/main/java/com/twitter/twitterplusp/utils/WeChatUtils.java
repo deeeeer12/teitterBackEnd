@@ -1,9 +1,8 @@
-package com.glu.teitter_app.utils;
+package com.twitter.twitterplusp.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.glu.teitter_app.common.HttpClientHelper;
-import com.glu.teitter_app.entity.WeChatInfo;
+import com.twitter.twitterplusp.entity.WeChatInfo;
 
 import java.rmi.UnexpectedException;
 

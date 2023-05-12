@@ -1,4 +1,4 @@
-package com.glu.teitter_app.common;
+package com.twitter.twitterplusp.utils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

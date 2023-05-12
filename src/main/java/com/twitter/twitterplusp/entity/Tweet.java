@@ -12,6 +12,10 @@ public class Tweet {
 
     private Long uid;
 
+    private Long parentTweetId;//推文的父ID
+
+    private Integer rank;//推文级别0/1
+
     private String content;
 
     private String nickName;

@@ -1,0 +1,110 @@
+Date : 2023-01-04 00:56:08
+Directory : c:\Users\gaolu\twitterplusp\src
+Total : 61 files,  1778 codes, 600 comments, 589 blanks, all 2967 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Java     |         59 |      1,728 |        590 |        580 |      2,898 |
+| YAML     |          1 |         37 |         10 |          7 |         54 |
+| XML      |          1 |         13 |          0 |          2 |         15 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                             | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                |         61 |      1,778 |        600 |        589 |      2,967 |
+| main                                                                                                             |         60 |      1,761 |        600 |        582 |      2,943 |
+| main\java                                                                                                        |         58 |      1,711 |        590 |        573 |      2,874 |
+| main\java\com                                                                                                    |         58 |      1,711 |        590 |        573 |      2,874 |
+| main\java\com\twitter                                                                                            |         58 |      1,711 |        590 |        573 |      2,874 |
+| main\java\com\twitter\twitterplusp                                                                               |         58 |      1,711 |        590 |        573 |      2,874 |
+| main\java\com\twitter\twitterplusp\common                                                                        |          5 |        106 |         39 |         37 |        182 |
+| main\java\com\twitter\twitterplusp\config                                                                        |          4 |         99 |         53 |         29 |        181 |
+| main\java\com\twitter\twitterplusp\controller                                                                    |          7 |        224 |        109 |         86 |        419 |
+| main\java\com\twitter\twitterplusp\dto                                                                           |          2 |         27 |          2 |         18 |         47 |
+| main\java\com\twitter\twitterplusp\entity                                                                        |          7 |        175 |         46 |         78 |        299 |
+| main\java\com\twitter\twitterplusp\filter                                                                        |          1 |         48 |          6 |          7 |         61 |
+| main\java\com\twitter\twitterplusp\handler                                                                       |          2 |         42 |          4 |          7 |         53 |
+| main\java\com\twitter\twitterplusp\mapper                                                                        |          8 |         64 |          0 |         30 |         94 |
+| main\java\com\twitter\twitterplusp\service                                                                       |         15 |        623 |        148 |        205 |        976 |
+| main\java\com\twitter\twitterplusp\service\impl                                                                  |          8 |        557 |        111 |        162 |        830 |
+| main\java\com\twitter\twitterplusp\utils                                                                         |          6 |        290 |        183 |         71 |        544 |
+| main\resources                                                                                                   |          2 |         50 |         10 |          9 |         69 |
+| main\resources\mapper                                                                                            |          1 |         13 |          0 |          2 |         15 |
+| test                                                                                                             |          1 |         17 |          0 |          7 |         24 |
+| test\java                                                                                                        |          1 |         17 |          0 |          7 |         24 |
+| test\java\com                                                                                                    |          1 |         17 |          0 |          7 |         24 |
+| test\java\com\twitter                                                                                            |          1 |         17 |          0 |          7 |         24 |
+| test\java\com\twitter\twitterplusp                                                                               |          1 |         17 |          0 |          7 |         24 |
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                                         | language | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\TwitterpluspApplication.java                  | Java     |         13 |          0 |          5 |         18 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\common\CustomException.java                   | Java     |          6 |          3 |          5 |         14 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\common\GlobalExceptionHandler.java            | Java     |         48 |         12 |         12 |         72 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\common\MyMetaObjectHandler.java               | Java     |         19 |          8 |          7 |         34 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\common\R.java                                 | Java     |         33 |          4 |         12 |         49 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\common\TokenOverdueException.java             | Java     |          0 |         12 |          1 |         13 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\config\MybatisPlusConfig.java                 | Java     |         14 |          3 |          5 |         22 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\config\OriginConfig.java                      | Java     |          9 |          9 |          3 |         21 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\config\RedisConfig.java                       | Java     |         24 |          2 |          7 |         33 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\config\SecurityConfig.java                    | Java     |         52 |         39 |         14 |        105 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\controller\CommentController.java             | Java     |         33 |         12 |         15 |         60 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\controller\CommonController.java              | Java     |         34 |         34 |         11 |         79 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\controller\LikeController.java                | Java     |         39 |         12 |          9 |         60 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\controller\LoginController.java               | Java     |         22 |          9 |          9 |         40 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\controller\PersonalHomePageController.java    | Java     |         20 |          5 |          8 |         33 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\controller\TweetController.java               | Java     |         40 |         15 |         15 |         70 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\controller\UserController.java                | Java     |         36 |         22 |         19 |         77 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\dto\CommentDto.java                           | Java     |         15 |          2 |          8 |         25 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\dto\TweetDto.java                             | Java     |         12 |          0 |         10 |         22 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\entity\Comment.java                           | Java     |         18 |          1 |         10 |         29 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\entity\Like.java                              | Java     |         13 |          3 |          8 |         24 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\entity\LoginUser.java                         | Java     |         56 |          7 |         15 |         78 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\entity\Menu.java                              | Java     |         32 |         33 |          8 |         73 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\entity\Tweet.java                             | Java     |         21 |          1 |         15 |         37 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\entity\User.java                              | Java     |         20 |          1 |         16 |         37 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\entity\UserRole.java                          | Java     |         15 |          0 |          6 |         21 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\filter\JwtAuthenticationTokenFilter.java      | Java     |         48 |          6 |          7 |         61 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\handler\AccessDeniedHandlerImpl.java          | Java     |         21 |          0 |          4 |         25 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\handler\AuthenticationEntryPointImpl.java     | Java     |         21 |          4 |          3 |         28 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\mapper\CommentMapper.java                     | Java     |          9 |          0 |          3 |         12 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\mapper\LikeMapper.java                        | Java     |          7 |          0 |          3 |         10 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\mapper\LoginMapper.java                       | Java     |          9 |          0 |          6 |         15 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\mapper\MenuMapper.java                        | Java     |          9 |          0 |          6 |         15 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\mapper\PersonalHomePageMapper.java            | Java     |          7 |          0 |          3 |         10 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\mapper\TweetMapper.java                       | Java     |          7 |          0 |          3 |         10 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\mapper\UserMapper.java                        | Java     |          9 |          0 |          3 |         12 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\mapper\UserRoleMapper.java                    | Java     |          7 |          0 |          3 |         10 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\CommentService.java                   | Java     |          9 |          4 |          6 |         19 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\LikeService.java                      | Java     |          9 |         10 |          5 |         24 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\LoginService.java                     | Java     |          8 |          9 |          6 |         23 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\PersonalHomePageService.java          | Java     |          8 |          0 |          3 |         11 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\TweetService.java                     | Java     |         14 |          5 |          8 |         27 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\UserRoleService.java                  | Java     |          5 |          0 |          3 |          8 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\UserService.java                      | Java     |         13 |          9 |         12 |         34 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\impl\CommentServiceImpl.java          | Java     |         85 |         19 |         27 |        131 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\impl\LikeServiceImpl.java             | Java     |         97 |         17 |         31 |        145 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\impl\LoginServiceImpl.java            | Java     |         49 |         24 |         13 |         86 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\impl\PersonalHomePageServiceImpl.java | Java     |         28 |          0 |          6 |         34 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\impl\TweetServiceImpl.java            | Java     |        157 |         26 |         46 |        229 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\impl\UserDetailsServiceImpl.java      | Java     |         32 |          3 |         10 |         45 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\impl\UserRoleServiceImpl.java         | Java     |          9 |          0 |          3 |         12 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\service\impl\UserServiceImpl.java             | Java     |        100 |         22 |         26 |        148 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\utils\FastJsonRedisSerializer.java            | Java     |         46 |          5 |         11 |         62 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\utils\GetLoginUserInfo.java                   | Java     |         13 |          4 |          9 |         26 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\utils\JwtUtil.java                            | Java     |         67 |         38 |         14 |        119 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\utils\RedisCache.java                         | Java     |        100 |        117 |         21 |        238 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\utils\Upload.java                             | Java     |         44 |         12 |         14 |         70 |
+| c:\Users\gaolu\twitterplusp\src\main\java\com\twitter\twitterplusp\utils\WebUtils.java                           | Java     |         20 |          7 |          2 |         29 |
+| c:\Users\gaolu\twitterplusp\src\main\resources\application.yml                                                   | YAML     |         37 |         10 |          7 |         54 |
+| c:\Users\gaolu\twitterplusp\src\main\resources\mapper\MenuMapper.xml                                             | XML      |         13 |          0 |          2 |         15 |
+| c:\Users\gaolu\twitterplusp\src\test\java\com\twitter\twitterplusp\TwitterpluspApplicationTests.java             | Java     |         17 |          0 |          7 |         24 |
+| Total                                                                                                            |          |      1,778 |        600 |        589 |      2,967 |
++------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

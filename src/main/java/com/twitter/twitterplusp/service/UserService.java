@@ -2,10 +2,10 @@ package com.twitter.twitterplusp.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.twitter.twitterplusp.common.R;
+import com.twitter.twitterplusp.entity.FansTop;
 import com.twitter.twitterplusp.entity.User;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 
@@ -25,9 +25,27 @@ public interface UserService extends IService<User> {
     R regist(User user);
 
 
-    User getSomeoneUserInfo(Long userId);
+    /**
+     * 获取某个用户信息
+     * @param userId
+     * @return
+     */
+    Map getSomeoneUserInfo(Long userId);
 
 
+    /**
+     * 更新用户信息
+     * @param user
+     * @return
+     */
     String updateSomeoneUserInfo(User user);
 
+
+    List<User> getAllUserInfo();
+
+    Boolean blockUser(List<Long> ids);
+
+    Boolean unblockUser(List<Long> ids);
+
+    FansTop getFansTop();
 }
