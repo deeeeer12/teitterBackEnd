@@ -8,12 +8,10 @@ import com.twitter.twitterplusp.common.RequestMessage;
 import com.twitter.twitterplusp.common.ResponseMessage;
 import com.twitter.twitterplusp.entity.LetterInfo;
 import com.twitter.twitterplusp.entity.LetterRelation;
-import com.twitter.twitterplusp.entity.LoginUser;
 import com.twitter.twitterplusp.entity.User;
 import com.twitter.twitterplusp.service.LetterInfoService;
 import com.twitter.twitterplusp.service.LetterRelationService;
 import com.twitter.twitterplusp.service.UserService;
-import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import com.twitter.twitterplusp.utils.OnlineUserManager;
 import com.twitter.twitterplusp.utils.RedisCache;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +22,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 
