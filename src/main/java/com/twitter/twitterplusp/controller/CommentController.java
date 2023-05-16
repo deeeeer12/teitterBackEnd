@@ -24,7 +24,6 @@ public class CommentController {
 
     /**
      * 添加评论按钮
-     * @param comment
      * @param tweetId
      * @return
      */
