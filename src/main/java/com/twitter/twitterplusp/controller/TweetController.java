@@ -13,7 +13,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/teitter/api/tweet")
+@RequestMapping("/teitter/v2/api/tweet")
 public class TweetController {
 
     @Autowired

@@ -16,7 +16,7 @@ import java.util.TreeSet;
 
 @Slf4j
 @RestController
-@RequestMapping("/teitter/api/follows")
+@RequestMapping("/teitter/v2/api/follows")
 public class FollowController {
 
     @Autowired

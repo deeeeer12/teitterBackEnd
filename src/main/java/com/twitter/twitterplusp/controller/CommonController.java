@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/teitter/api")
+@RequestMapping("/teitter/v2/api")
 public class CommonController {
 
     public static final String BASE_URL = "https://www.heron.love:8888";

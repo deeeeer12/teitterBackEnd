@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/teitter/api/comment")
+@RequestMapping("/teitter/v2/api/comment")
 public class CommentController {
 
     @Autowired

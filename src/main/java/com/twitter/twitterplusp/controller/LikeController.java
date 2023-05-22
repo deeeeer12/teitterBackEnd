@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/teitter/api/tweet")
+@RequestMapping("/teitter/v2/api/tweet")
 public class LikeController {
 
     @Autowired

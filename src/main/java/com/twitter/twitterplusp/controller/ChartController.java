@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/teitter/api/chart")
+@RequestMapping("/teitter/v2/api/chart")
 public class ChartController {
 
     @Autowired

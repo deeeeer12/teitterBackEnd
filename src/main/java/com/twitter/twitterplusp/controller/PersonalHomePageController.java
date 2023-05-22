@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/teitter/api/tweet")
+@RequestMapping("/teitter/v2/api/tweet")
 public class PersonalHomePageController {
 
 

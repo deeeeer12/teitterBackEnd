@@ -17,7 +17,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/teitter/api/notice")
+@RequestMapping("/teitter/v2/api/notice")
 public class MessageController {
 
     @Autowired

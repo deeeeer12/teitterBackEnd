@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/teitter/api/topic")
+@RequestMapping("/teitter/v2/api/topic")
 public class TopicController {
 
     @Autowired

@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/teitter/api/user")
+@RequestMapping("/teitter/v2/api/user")
 public class LoginController {
 
     @Autowired

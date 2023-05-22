@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/teitter/api/user")
+@RequestMapping("/teitter/v2/api/user")
 public class UserController {
 
     @Autowired
