@@ -17,7 +17,6 @@ public class HttpClientHelper {
 
     /**
      * 普通get请求
-     * @param url
      * @return
      */
     public static String get(String url) {
@@ -35,7 +34,7 @@ public class HttpClientHelper {
         }
         return result;
     }
-    
+
     /**
      * 普通post请求：application/json和application/x-www-form-urlencoded
      * @param url

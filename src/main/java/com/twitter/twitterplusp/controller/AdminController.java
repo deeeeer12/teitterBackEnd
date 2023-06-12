@@ -1,7 +1,6 @@
 package com.twitter.twitterplusp.controller;
 
 import com.twitter.twitterplusp.common.R;
-import com.twitter.twitterplusp.entity.Tweet;
 import com.twitter.twitterplusp.entity.User;
 import com.twitter.twitterplusp.service.TweetService;
 import com.twitter.twitterplusp.service.UserService;

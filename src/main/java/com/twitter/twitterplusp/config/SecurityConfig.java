@@ -64,17 +64,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 //对于登录接口 允许匿名访问
-                .antMatchers("/teitter/api/user/login").anonymous()
+                .antMatchers("/teitter/v2/api/user/login").anonymous()
 //                .antMatchers("/teitter/api/intoChat").anonymous()
                 //无论登录没登录，都可以访问
                 .antMatchers("/teitter/api/user/isLogin").permitAll()
-                .antMatchers("/teitter/api/user/regist").permitAll()
-                .antMatchers("/teitter/api/tweet/getAllTweet").permitAll()
-                .antMatchers("/teitter/api/tweet/getUserTweet/{uid}").permitAll()
-                .antMatchers("/teitter/api/comment/getComment/{tweetId}").permitAll()
-                .antMatchers("/teitter/api/user/getUserInfo/{uid}").permitAll()
-                .antMatchers("/teitter/app/api/**").permitAll()
-                .antMatchers("/teitter/api/admin/**").permitAll()
+                .antMatchers("/teitter/v2/api/user/regist").permitAll()
+                .antMatchers("/teitter/v2/api/tweet/getAllTweet").permitAll()
+                .antMatchers("/teitter/v2/api/tweet/getUserTweet/{uid}").permitAll()
+                .antMatchers("/teitter/v2/api/comment/getComment/{tweetId}").permitAll()
+                .antMatchers("/teitter/v2/api/user/getUserInfo/{uid}").permitAll()
+                .antMatchers("/teitter/v2/app/api/**").permitAll()
+                .antMatchers("/teitter/v2/api/admin/**").permitAll()
 //                .antMatchers("/teitter/api/topic/getTweetsByTopicId").permitAll()
         // 除上面外的所有请求全部需要鉴权认证
                 .anyRequest().authenticated();
