@@ -52,8 +52,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         tweet.setParentTweetId(tweetId);
         tweet.setContent(content);
         tweet.setUid(user.getUid());
-        //rank=1代表这是子推文（评论推文）
-        tweet.setRank(1);
+        //level=1代表这是子推文（评论推文）
+        tweet.setLevel(1);
         tweet.setNickName(user.getNickName());
         tweetService.save(tweet);
 
@@ -154,7 +154,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         List<Tweet> newComments = new ArrayList<>();
         for (Tweet obj:comments){
             CommentDto commentDto = new CommentDto();
-            BeanUtils.copyProperties(obj,commentDto,"id","tweetId","isDeleted","parentTweetId","rank");
+            BeanUtils.copyProperties(obj,commentDto,"id","tweetId","isDeleted","parentTweetId","level");
             Long userId = obj.getUid();
             User userInfo = userService.getById(userId);
             BeanUtils.copyProperties(userInfo,commentDto,"createDate");

@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     public R<String> exceptionHandler(SQLSyntaxErrorException ex){
         log.error(ex.getMessage());
         if(ex.getMessage().contains("You have")){
-            String msg = "当前点赞数已经为0";
+            String msg = "SQL语法错误";
             return R.error(msg);
         }
         return R.error("未知错误");

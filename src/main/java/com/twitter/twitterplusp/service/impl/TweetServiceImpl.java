@@ -150,7 +150,7 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
             LambdaQueryWrapper<Tweet> queryWrapper = new LambdaQueryWrapper<>();
             //根据发忒时间降序排序，并进行模糊查询
             queryWrapper
-                    .eq(Tweet::getRank,0)
+                    .eq(Tweet::getLevel,0)
                     .like(keyWord != null, Tweet::getContent, keyWord)
                     .or()
                     .like(keyWord != null, Tweet::getNickName, keyWord)
