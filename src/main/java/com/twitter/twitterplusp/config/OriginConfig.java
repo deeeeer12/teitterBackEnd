@@ -10,7 +10,7 @@ public class OriginConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
 
         registry.addMapping("/**")
-                .allowedOriginPatterns("https://teitter.cuijunyu.win:8443/")
+                .allowedOriginPatterns("https://teitter-v2.cuijunyu.win:8443")
                 .allowedHeaders("*")
                 .allowedMethods("*")
                 .allowCredentials(true)

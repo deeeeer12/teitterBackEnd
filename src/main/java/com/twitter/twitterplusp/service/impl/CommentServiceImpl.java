@@ -48,7 +48,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     @Override
     public void addComment(Long tweetId, User user,String content) {
 
-        //根据推文id查询该图文的层级
+        //根据推文id查询该推文的层级
         LambdaQueryWrapper<Tweet> queryTweet = new LambdaQueryWrapper<>();
         queryTweet.eq(Tweet::getTweetId,tweetId);
         Tweet one = tweetService.getOne(queryTweet);
@@ -90,12 +90,11 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         Message message = new Message();
         message.setSenderId(user.getUid());
         LambdaQueryWrapper<Tweet> qw = new LambdaQueryWrapper<>();
-        qw.eq(Tweet::getTweetId,tweet.getTweetId());
+        qw.eq(Tweet::getTweetId,one.getTweetId());
         Tweet twt = tweetService.getOne(qw);
         message.setReceiverId(twt.getUid());
         message.setMsgInfoId(msgInfoId);
         messageService.save(message);
-
     }
 
     /**
