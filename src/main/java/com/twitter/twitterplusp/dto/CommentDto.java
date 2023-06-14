@@ -18,6 +18,8 @@ public class CommentDto extends Tweet {
 
     private String avatarUrl;
 
+    private Boolean likeStatus;
+
     //逻辑删除字段
     @TableLogic
     private Integer isDeleted;

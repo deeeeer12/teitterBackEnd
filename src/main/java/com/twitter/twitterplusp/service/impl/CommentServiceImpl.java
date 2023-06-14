@@ -8,6 +8,7 @@ import com.twitter.twitterplusp.dto.TweetDto;
 import com.twitter.twitterplusp.entity.*;
 import com.twitter.twitterplusp.mapper.CommentMapper;
 import com.twitter.twitterplusp.service.*;
+import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,16 +48,22 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     @Override
     public void addComment(Long tweetId, User user,String content) {
 
+        //根据推文id查询该图文的层级
+        LambdaQueryWrapper<Tweet> queryTweet = new LambdaQueryWrapper<>();
+        queryTweet.eq(Tweet::getTweetId,tweetId);
+        Tweet one = tweetService.getOne(queryTweet);
+
         Tweet tweet = new Tweet();
         //为评论推文绑定其父推文
         tweet.setParentTweetId(tweetId);
         tweet.setContent(content);
         tweet.setUid(user.getUid());
-        //level=1代表这是子推文（评论推文）
-        tweet.setLevel(1);
+        //level>=1,代表这是子推文（评论推文）
+        //查询推文id，评论的level应在该推文层级的基础上进行+1，方便今后进行递归查询
+        Integer level = one.getLevel();
+        tweet.setLevel(level+1);
         tweet.setNickName(user.getNickName());
         tweetService.save(tweet);
-
         //添加评论成功后，将该推文的评论数量+1
         LambdaUpdateWrapper<Tweet> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.setSql("comment_count = comment_count + 1 ")
@@ -112,7 +119,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         BeanUtils.copyProperties(tweet,tweetDto);
 
         if (!"anonymousUser".equals(name)){
-            LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+            LoginUser loginUser = GetLoginUserInfo.getLoginUser();
             //查找推文的点赞信息
             LambdaQueryWrapper<Like> queryWrapperLike = new LambdaQueryWrapper<>();
             queryWrapperLike.eq(Like::getUid,loginUser.getUser().getUid())
@@ -154,10 +161,27 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         List<Tweet> newComments = new ArrayList<>();
         for (Tweet obj:comments){
             CommentDto commentDto = new CommentDto();
-            BeanUtils.copyProperties(obj,commentDto,"id","tweetId","isDeleted","parentTweetId","level");
+            BeanUtils.copyProperties(obj,commentDto,"id","level");
             Long userId = obj.getUid();
             User userInfo = userService.getById(userId);
             BeanUtils.copyProperties(userInfo,commentDto,"createDate");
+
+            //默认为false
+            commentDto.setLikeStatus(false);
+
+            //查询当前登录用户对该条评论的点赞信息
+            if (!"anonymousUser".equals(name)){
+                LoginUser loginUser = GetLoginUserInfo.getLoginUser();
+                LambdaQueryWrapper<Like> queryLikeStatus = new LambdaQueryWrapper<>();
+                queryLikeStatus.eq(Like::getTweetId,obj.getTweetId())
+                        .eq(Like::getUid,loginUser.getUser().getUid())
+                        .eq(Like::getStatus,1);
+
+                Like likeStatus = likeService.getOne(queryLikeStatus);
+                if (!Objects.isNull(likeStatus)){
+                    commentDto.setLikeStatus(true);
+                }
+            }
             newComments.add(commentDto);
         }
         //查询出每一条评论的用户信息

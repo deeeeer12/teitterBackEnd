@@ -72,6 +72,7 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
 
         tweet.setNickName(loginUser.getUser().getNickName());
         tweet.setUid(loginUser.getUser().getUid());
+        tweet.setLevel(0);
 
         //保存推文到数据库的推文表
         tweetService.save(tweet);
@@ -150,12 +151,14 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
             LambdaQueryWrapper<Tweet> queryWrapper = new LambdaQueryWrapper<>();
             //根据发忒时间降序排序，并进行模糊查询
             queryWrapper
-                    .eq(Tweet::getLevel,0)
                     .like(keyWord != null, Tweet::getContent, keyWord)
+                    .eq(Tweet::getLevel,0)
                     .or()
+                    .eq(Tweet::getLevel,0)
                     .like(keyWord != null, Tweet::getNickName, keyWord)
                     .orderByDesc(Tweet::getCreateDate);
             tweetService.page(pageInfo, queryWrapper);
+
 
             BeanUtils.copyProperties(pageInfo, pageDto, "records");
 
@@ -218,8 +221,10 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
             //根据发忒时间降序排序
             queryWrapper
                     .like(keyWord != null, Tweet::getContent, keyWord)
+                    .eq(Tweet::getLevel,0)
                     .or()
                     .like(keyWord != null, Tweet::getNickName, keyWord)
+                    .eq(Tweet::getLevel,0)
                     .orderByDesc(Tweet::getCreateDate);
             tweetService.page(pageInfo, queryWrapper);
 

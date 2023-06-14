@@ -73,6 +73,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/teitter/v2/api/tweet/getUserTweet/{uid}").permitAll()
                 .antMatchers("/teitter/v2/api/comment/getComment/{tweetId}").permitAll()
                 .antMatchers("/teitter/v2/api/user/getUserInfo/{uid}").permitAll()
+                .antMatchers("/teitter/v2/api//comment/getComment/**").permitAll()
                 .antMatchers("/teitter/v2/app/api/**").permitAll()
                 .antMatchers("/teitter/v2/api/admin/**").permitAll()
 //                .antMatchers("/teitter/api/topic/getTweetsByTopicId").permitAll()
