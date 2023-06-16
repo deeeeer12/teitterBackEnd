@@ -1,5 +1,6 @@
 package com.twitter.twitterplusp.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.twitter.twitterplusp.common.R;
 import com.twitter.twitterplusp.entity.LoginUser;
 import com.twitter.twitterplusp.entity.Tweet;
@@ -9,7 +10,10 @@ import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -73,6 +77,7 @@ public class TweetController {
     @PostMapping("/delTweet")
     public R delTweetPersonal(Long tweetId){
 
+        //删除推文
         String result = tweetService.delTweet(tweetId);
 
         return R.success(null,result);

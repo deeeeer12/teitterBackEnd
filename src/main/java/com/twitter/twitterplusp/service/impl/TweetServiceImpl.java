@@ -1,6 +1,7 @@
 package com.twitter.twitterplusp.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.twitter.twitterplusp.common.R;
@@ -15,10 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -34,9 +38,6 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
     private LikeService likeService;
 
     @Autowired
-    private CommentService commentService;
-
-    @Autowired
     private FansService fansService;
 
     @Autowired
@@ -50,6 +51,8 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
 
     @Autowired
     private TopicAndTweetService topicAndTweetService;
+
+    public List<Long> resultIds = new ArrayList<>();
 
 
     /**
@@ -328,13 +331,96 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
         return b;
     }
 
+    @Transactional
     @Override
     public String delTweet(Long tweetId) {
 
-        boolean result = tweetService.removeById(tweetId);
+        //根据推文ID查询他的父Id
+        Long pid = getPidByTweetId(tweetId);
+
+        //存放所有子推文
+        List<Long> list = new ArrayList<>();
+        //1把该条推文先添加进去
+        list.add(tweetId);
+        LambdaQueryWrapper<Tweet> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Tweet::getParentTweetId,tweetId);
+        //当前要删除的推文的下一级推文们
+        List<Tweet> tweets = tweetService.getBaseMapper().selectList(queryWrapper);
+        if (tweets!=null){
+            List<Long> collect = tweets.stream().map(Tweet::getTweetId).collect(Collectors.toList());
+            //2将该推文的下一级推文先添加进去
+            for (Long aLong : collect) {
+                list.add(aLong);
+            }
+            //3将递归查询出的余下的所有推文添加进去
+            List<Long> ids = AllChildTweetId(collect);
+            if (ids!=null){
+                for (Long id : ids) {
+                    list.add(id);
+                }
+            }
+        }
+
+        boolean result = tweetService.removeByIds(list);
         if(result){
+            resultIds = null;
+            if (pid!=null){
+                LambdaQueryWrapper<Tweet> queryParTweet = new LambdaQueryWrapper<>();
+                queryParTweet.eq(Tweet::getTweetId,pid);
+                //1得到被删除推文的父推文
+                Tweet pTweet = tweetService.getOne(queryParTweet);
+                //2根据pid将改推文的评论数-1
+                LambdaUpdateWrapper<Tweet> updateWrapper = new LambdaUpdateWrapper<>();
+                updateWrapper.eq(Tweet::getTweetId,pTweet.getTweetId())
+                        .setSql("`comment_count`=`comment_count`-1");
+                tweetService.update(updateWrapper);
+            }
             return "删除成功";
         }
         return "删除失败";
+    }
+
+    /**
+     * 根据一个id集合，去查询这些id的子推文
+     * @param ids
+     * @return
+     */
+    public List<Long> AllChildTweetId(List<Long> ids){
+        List<Long> roList = new ArrayList<>();
+
+        if (!(ids.size()==0)){
+            for (Long id : ids) {
+                LambdaQueryWrapper<Tweet> queryWrapper = new LambdaQueryWrapper();
+                queryWrapper.eq(Tweet::getParentTweetId,id);
+                List<Tweet> tweets = tweetService.getBaseMapper().selectList(queryWrapper);
+                if (!(tweets.size()==0)){
+                    List<Long> collect = tweets.stream().map(Tweet::getTweetId).collect(Collectors.toList());
+                    for (Long aLong : collect) {
+                        roList.add(aLong);
+                    }
+                }
+            }
+            for (Long aLong : roList) {
+                resultIds.add(aLong);
+            }
+        }else {
+            return resultIds;
+        }
+        AllChildTweetId(roList);
+        return resultIds;
+    }
+
+    /**
+     * 根据推文ID去查询他的Pid
+     * @param tweetId
+     * @return
+     */
+    public Long getPidByTweetId(Long tweetId){
+        LambdaQueryWrapper<Tweet> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Tweet::getTweetId,tweetId);
+        Tweet tweet = tweetService.getOne(queryWrapper);
+        Long parentTweetId = tweet.getParentTweetId();
+
+        return parentTweetId;
     }
 }
