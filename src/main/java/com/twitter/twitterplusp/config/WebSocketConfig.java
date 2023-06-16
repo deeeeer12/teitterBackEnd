@@ -21,7 +21,7 @@ public class WebSocketConfig implements WebMvcConfigurer, WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 
-        registry.addHandler(chatController,"/teitter/api/intoChat")
+        registry.addHandler(chatController,"/teitter/v2/api/intoChat")
                 .addInterceptors(httpSessionHandshakeInterceptor);
     }
 

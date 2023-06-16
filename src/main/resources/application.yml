@@ -2,10 +2,10 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/teitter?characterEncoding=utf-8&useSSL=false
+#    url: jdbc:mysql://localhost:3307/teitter?characterEncoding=utf-8&useSSL=false
 #    url: jdbc:mysql://localhost:3307/teitterold?characterEncoding=utf-8&useSSL=false
 #    url: jdbc:mysql://117.78.0.131:3306/teitterplusp?characterEncoding=utf-8&useSSL=true
-#    url: jdbc:mysql://117.78.0.131:3306/teitterpluspnew?characterEncoding=utf-8&useSSL=false
+    url: jdbc:mysql://117.78.0.131:3306/teitterpluspnew?characterEncoding=utf-8&useSSL=false
     username: root
     password: 821552
   main:
@@ -44,11 +44,11 @@ server:
 #    key-store-password: 31un3zoq
 #    key-store-type: JKS
 #    enabled: true
-#  ssl:
-#    key-store-password: 4q57gk132f237r
-#    key-store-type: JKS
-#    key-store: classpath:heron.love.jks
-#    enabled: true
+  ssl:
+    key-store-password: 4q57gk132f237r
+    key-store-type: JKS
+    key-store: classpath:heron.love.jks
+    enabled: true
 
 
 ######### 自定义 ##########

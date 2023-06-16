@@ -20,6 +20,8 @@ public class CommentDto extends Tweet {
 
     private Boolean likeStatus;
 
+    private CommentDto childComment;
+
     //逻辑删除字段
     @TableLogic
     private Integer isDeleted;

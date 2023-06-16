@@ -56,4 +56,12 @@ public class CommentController {
         return result;
     }
 
+    @GetMapping("/getComment/v2/{tweetId}")
+    public Map getCommentV2(@PathVariable("tweetId") Long tweetId){
+
+        Map result = commentService.getCommentV2ByTweetId(tweetId);
+
+        return null;
+    }
+
 }

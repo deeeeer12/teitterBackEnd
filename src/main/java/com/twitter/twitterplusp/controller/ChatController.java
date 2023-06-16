@@ -23,7 +23,9 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Transactional
@@ -95,18 +97,26 @@ public class ChatController extends TextWebSocketHandler {
             responseMessage.setMessage("loadMessage");
             responseMessage.setReceiveUsernickname(requestMessage.getTo());
 
+            //调用方法，获取uid
+            Map<String, Long> uidByNickName = getUidByNickName(requestMessage.getFrom(), requestMessage.getTo());
+            Long fromId = uidByNickName.get("fromId");
+            Long toId = uidByNickName.get("toId");
+
             LambdaQueryWrapper<LetterRelation> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(LetterRelation::getSendUserId,requestMessage.getFrom())
-                            .eq(LetterRelation::getReceiveUserId,requestMessage.getTo());
+            queryWrapper.eq(LetterRelation::getSendUserId,fromId)
+                        .eq(LetterRelation::getReceiveUserId,toId)
+                    .or()
+                        .eq(LetterRelation::getSendUserId,toId)
+                        .eq(LetterRelation::getReceiveUserId,fromId);
             LetterRelation one = relationService.getOne(queryWrapper);
-            //relationId即两个用户的聊天id，可以用来去letter_info表中查询他们的聊天记录
-            Long relationId = one.getId();
+            //relationId即两个用户的聊天id，用来去letter_info表中查询他们的聊天记录
             //2.a.2 判断当前的relationId是否存在, 不存在就不需要加载聊天记录了
-            if (relationId == null || relationId == 0){
+            if (one == null || "".equals(one)){
                 responseMessage.setStatus(200);
                 responseMessage.setMessages(null);//给聊天记录赋null
             }else {
                 //2.a.3存在聊天记录，需要加载
+                Long relationId = one.getId();
                 responseMessage.setStatus(200);
                 BaseMapper<LetterInfo> baseMapper = letterInfoService.getBaseMapper();
                 LambdaQueryWrapper<LetterInfo> queryWrapperChatInfo = new LambdaQueryWrapper<>();
@@ -118,7 +128,7 @@ public class ChatController extends TextWebSocketHandler {
                     Message message1 = new Message();
                     message1.setMessage(letterInfo.getContent());//设置上该条消息的内容
                     message1.setUserId(letterInfo.getSendUserId());//设置当前消息是谁发送的
-                    message1.setSender(letterInfo.getSendUserId()==user.getUid());//判断当前登录用户是否为该条消息的发送者
+                    message1.setSender(user.getUid().equals(letterInfo.getSendUserId()));//判断当前登录用户是否为该条消息的发送者
                     messages.add(message1);
                 }
                 responseMessage.setMessages(messages);
@@ -131,46 +141,40 @@ public class ChatController extends TextWebSocketHandler {
             String fromNickname = requestMessage.getFrom();//从请求中获取发送者昵称
             String toNickname = requestMessage.getTo();//从请求中获取接收者昵称
 
-            //根据昵称分别获得发送者和接收者的uid
-            LambdaQueryWrapper<User> queryWrapperFrom = new LambdaQueryWrapper<>();
-            queryWrapperFrom.eq(User::getNickName,fromNickname);
-            User fromUser = userService.getOne(queryWrapperFrom);
-            Long sendUserId = fromUser.getUid();
-
-            LambdaQueryWrapper<User> queryWrapperTo = new LambdaQueryWrapper<>();
-            queryWrapperFrom.eq(User::getNickName,toNickname);
-            User toUser = userService.getOne(queryWrapperTo);
-            Long receiveUserId = toUser.getUid();
+            //调用方法，获取uid
+            Map<String, Long> uidByNickName = getUidByNickName(fromNickname, toNickname);
+            Long fromId = uidByNickName.get("fromId");
+            Long toId = uidByNickName.get("toId");
 
             //根据两者的uid去letter_relation表中查询relationId
             LambdaQueryWrapper<LetterRelation> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(LetterRelation::getSendUserId,sendUserId)
-                            .eq(LetterRelation::getReceiveUserId,receiveUserId);
+            queryWrapper.eq(LetterRelation::getSendUserId,fromId)
+                            .eq(LetterRelation::getReceiveUserId,toId);
             LetterRelation letterRelationEntity = relationService.getOne(queryWrapper);
-            Long relationId = letterRelationEntity.getId();
+            Long relationId = null;
             //2.b.2判断当前的relationId是否为空，若为空则在letter_relation表中创建该聊天关系，然后再获取其relationId
             if (letterRelationEntity == null){
                 responseMessage.setStatus(200);
-                LetterRelation letterRelation = new LetterRelation(null,sendUserId,receiveUserId);
+                LetterRelation letterRelation = new LetterRelation(null,fromId,toId);
                 relationService.save(letterRelation);
                 letterRelationEntity= relationService.getOne(queryWrapper);
                 relationId = letterRelationEntity.getId();
             }
             //2.b.3根据relationId，在聊天表里添加数据
             String content = requestMessage.getContent();
-            LetterInfo letterInfo = new LetterInfo(null,sendUserId,relationId,content,null);
+            LetterInfo letterInfo = new LetterInfo(null,fromId,letterRelationEntity.getId(),content,null);
             letterInfoService.save(letterInfo);
             //2.b.4设置对应的响应信息
             responseMessage.setStatus(200);
             responseMessage.setMessage("sendMessage");
             //2.b.5获取两者用户的session, 并判断是否在线, 给在线的用户返回响应, 刷新聊天框
             Message message1 = new Message();
-            WebSocketSession session1 = onlineUserManager.getState(sendUserId);
-            WebSocketSession session2 = onlineUserManager.getState(receiveUserId);
+            WebSocketSession session1 = onlineUserManager.getState(fromId);
+            WebSocketSession session2 = onlineUserManager.getState(toId);
             if (session1!=null){
                 message1.setSender(true);
                 message1.setMessage(content);
-                message1.setUserId(sendUserId);
+                message1.setUserId(fromId);
                 List<Message> list = new ArrayList<>();
                 list.add(message1);
                 responseMessage.setMessages(list);
@@ -179,7 +183,7 @@ public class ChatController extends TextWebSocketHandler {
             if (session2!=null){
                 message1.setSender(false);
                 message1.setMessage(content);
-                message1.setUserId(receiveUserId);
+                message1.setUserId(toId);
                 List<Message> list = new ArrayList<>();
                 list.add(message1);
                 responseMessage.setMessages(list);
@@ -247,5 +251,26 @@ public class ChatController extends TextWebSocketHandler {
         return users;
     }
 
+    public Map<String,Long> getUidByNickName(String from,String to){
+
+        Map<String,Long> map = new HashMap<>();
+
+        //根据昵称分别获得发送者和接收者的uid
+        LambdaQueryWrapper<User> queryWrapperFrom = new LambdaQueryWrapper<>();
+        queryWrapperFrom.eq(User::getNickName,from);
+        User fromUser = userService.getOne(queryWrapperFrom);
+        Long sendUserId = fromUser.getUid();
+
+        LambdaQueryWrapper<User> queryWrapperTo = new LambdaQueryWrapper<>();
+        queryWrapperTo.eq(User::getNickName,to);
+        User toUser = userService.getOne(queryWrapperTo);
+        Long receiveUserId = toUser.getUid();
+
+        map.put("fromId",sendUserId);
+        map.put("toId",receiveUserId);
+
+        return map;
+
+    }
 
 }

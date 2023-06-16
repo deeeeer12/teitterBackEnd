@@ -2,6 +2,7 @@ package com.twitter.twitterplusp.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.twitter.twitterplusp.dto.CommentDto;
 import com.twitter.twitterplusp.dto.TweetDto;
@@ -40,6 +41,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
 
     @Autowired
     private MessageInfoService messageInfoService;
+
+
 
     /**
      * 添加评论推文
@@ -191,5 +194,63 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         map.put("status",200);
 
         return map;
+    }
+
+    @Override
+    public Map getCommentV2ByTweetId(Long tweetId) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String name = authentication.getName();
+
+        //根据推文id查询推文内容
+        LambdaQueryWrapper<Tweet> queryWrapperTweet = new LambdaQueryWrapper<>();
+        queryWrapperTweet.eq(Tweet::getTweetId,tweetId);
+        Tweet tweet = tweetService.getOne(queryWrapperTweet);
+
+        TweetDto tweetDto = new TweetDto();
+
+        BeanUtils.copyProperties(tweet,tweetDto);
+
+        if (!"anonymousUser".equals(name)){
+            LoginUser loginUser = GetLoginUserInfo.getLoginUser();
+            //查找推文的点赞信息
+            LambdaQueryWrapper<Like> queryWrapperLike = new LambdaQueryWrapper<>();
+            queryWrapperLike.eq(Like::getUid,loginUser.getUser().getUid())
+                    .eq(Like::getTweetId,tweetId);
+            Like like = likeService.getOne(queryWrapperLike);
+
+            //封装当前登录用户对应的推文的点赞信息
+            if (Objects.isNull(like)){
+                tweetDto.setLikeStatus(false);
+            }else if(like.getStatus()==1) {
+                tweetDto.setLikeStatus(true);
+            }
+        }else {
+            tweetDto.setLikeStatus(false);
+        }
+
+        //查询推文的所有子评论以及评论的评论
+        List<Tweet> child = this.getChild(tweetId);
+
+
+        return null;
+    }
+
+    /**
+     * 调用该方法，递归获取推文的子推文
+     * @param pid
+     * @return
+     */
+    public List<Tweet> getChild(Long pid){
+        BaseMapper<Tweet> baseMapper = tweetService.getBaseMapper();
+        List<Tweet> childComments = baseMapper.selectList(new LambdaQueryWrapper<Tweet>().eq(Tweet::getParentTweetId, pid));
+        childComments.stream().forEach(s->System.out.println(s));
+        if (childComments!=null){
+            for (Tweet childComment : childComments) {
+                getChild(childComment.getParentTweetId());
+            }
+
+        }
+        return null;
     }
 }

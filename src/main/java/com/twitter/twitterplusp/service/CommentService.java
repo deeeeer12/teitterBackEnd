@@ -16,4 +16,6 @@ public interface CommentService extends IService<Comment> {
     void addComment(Long tweetId, User user, String content);
 
     Map getCommentByTweetId(Long tweetId);
+
+    Map getCommentV2ByTweetId(Long tweetId);
 }
