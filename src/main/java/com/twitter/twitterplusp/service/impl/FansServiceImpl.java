@@ -6,12 +6,10 @@ import com.twitter.twitterplusp.entity.Fans;
 import com.twitter.twitterplusp.entity.User;
 import com.twitter.twitterplusp.mapper.FansMapper;
 import com.twitter.twitterplusp.service.FansService;
-import com.twitter.twitterplusp.service.FollowService;
 import com.twitter.twitterplusp.service.UserService;
 import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import com.twitter.twitterplusp.utils.RedisCache;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

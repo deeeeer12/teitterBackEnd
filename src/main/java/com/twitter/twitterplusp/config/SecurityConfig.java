@@ -67,6 +67,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/teitter/v2/api/user/login").anonymous()
 //                .antMatchers("/teitter/api/intoChat").anonymous()
                 //无论登录没登录，都可以访问
+                .antMatchers("/teitter/v2/api/news/getHot").permitAll()
                 .antMatchers("/teitter/v2/api/user/isLogin").permitAll()
                 .antMatchers("/teitter/v2/api/user/regist").permitAll()
                 .antMatchers("/teitter/v2/api/tweet/getAllTweet").permitAll()
