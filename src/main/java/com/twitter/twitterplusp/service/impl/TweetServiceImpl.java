@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -288,7 +289,6 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
             return null;
         }
 
-
         List<TweetDto> tweetDtoList = new ArrayList<>();
 
         BeanUtils.copyProperties(tweets,tweetDtoList);
@@ -308,16 +308,39 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
                     .eq(Like::getTweetId, tweetId);
             Like like = likeService.getOne(queryWrapperLike);
 
-            //封装当前登录用户对应的推文的点赞信息
-            if (Objects.isNull(like) || like.getStatus()==0) {
-                tweetDto.setLikeStatus(false);
-            } else if (like.getStatus() == 1) {
-                tweetDto.setLikeStatus(true);
+            //若该推文的父ID不等于null，即它为子推文，则根据ParentTweetId查询parentTweet的作者nickName并封装返回
+            //查询该推文是否为回复推文，如果是，查出其父推文的nickName
+            Long parentTweetId = item.getParentTweetId();
+            if (!ObjectUtils.isEmpty(parentTweetId)) {
+                //查询推文
+                LambdaQueryWrapper<Tweet> queryParentNickName = new LambdaQueryWrapper<>();
+                queryParentNickName.eq(Tweet::getTweetId, parentTweetId);
+                Tweet parentTweet = tweetService.getOne(queryParentNickName);
+                //最终结果1:nickName
+                String repliedNickName = parentTweet.getNickName();
+
+                //存入
+                tweetDto.setRepliedNickNameTo(repliedNickName);
+
+                //查询用户
+                LambdaQueryWrapper<User> queryUser = new LambdaQueryWrapper<>();
+                queryUser.eq(User::getUid,parentTweet.getUid());
+                User one = userService.getOne(queryUser);
+                String repliedUserName = one.getUserName();
+                tweetDto.setRepliedUserNameTo(repliedUserName);
+
+                //封装当前登录用户对应的推文的点赞信息
+                if (Objects.isNull(like) || like.getStatus() == 0) {
+                    tweetDto.setLikeStatus(false);
+                } else if (like.getStatus() == 1) {
+                    tweetDto.setLikeStatus(true);
+                }
             }
 
             tweetDto.setUserName(userName);
             tweetDto.setAvatarUrl(avatarUrl);
             tweetDtoList.add(tweetDto);
+
         }
 
         return tweetDtoList;

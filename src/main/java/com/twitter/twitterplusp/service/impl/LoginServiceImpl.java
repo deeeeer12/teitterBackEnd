@@ -67,7 +67,7 @@ public class LoginServiceImpl extends ServiceImpl<LoginMapper, User> implements 
         String jwt = JwtUtil.createJWT(userId);
 
         //把完整的用户信息存入redis userId作为key
-        redisCache.setCacheObject("login:"+userId,loginUser);
+        redisCache.setCacheObject("login:"+userId,loginUser,14,TimeUnit.DAYS);
         Map<String,String> map = new HashMap<>();
         map.put("token",jwt);
 

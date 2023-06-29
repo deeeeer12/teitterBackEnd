@@ -40,7 +40,7 @@ public class PersonalHomePageServiceImpl extends ServiceImpl<PersonalHomePageMap
                 Tweet parentTweet = tweetService.getOne(queryParentNickName);
                 //最终结果:nickName
                 String nickName = parentTweet.getNickName();
-                tweet.setRepliedTo(nickName);
+                tweet.setRepliedNickNameTo(nickName);
             }
         }
 

@@ -26,7 +26,10 @@ public class Tweet {
     private Integer likeCount;
 
     @TableField(exist = false)//与数据库无关
-    private String repliedTo;//若推文为回复推文，则有被回复者nickName
+    private String repliedNickNameTo;//若推文为回复推文，则有被回复者nickName
+
+    @TableField(exist = false)//与数据库无关
+    private String repliedUserNameTo;//若推文为回复推文，则有被回复者userName
 
     private Integer commentCount;
 
