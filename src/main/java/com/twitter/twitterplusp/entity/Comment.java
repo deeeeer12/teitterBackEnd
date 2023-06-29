@@ -18,6 +18,8 @@ public class Comment {
 
     private String commentContent;
 
+    private String repliedTo;//被回复者nickName
+
     @TableField(fill = FieldFill.INSERT)
     private Long createDate;//评论时间
 

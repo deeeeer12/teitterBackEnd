@@ -121,6 +121,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
 
         BeanUtils.copyProperties(tweet,tweetDto);
 
+        //若用户已登录，则封装点赞信息，若未登录，则封装直接为false（未点赞）
         if (!"anonymousUser".equals(name)){
             LoginUser loginUser = GetLoginUserInfo.getLoginUser();
             //查找推文的点赞信息

@@ -4,10 +4,7 @@ import com.twitter.twitterplusp.common.R;
 import com.twitter.twitterplusp.entity.User;
 import com.twitter.twitterplusp.service.PersonalHomePageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/teitter/v2/api/tweet")
@@ -22,7 +19,7 @@ public class PersonalHomePageController {
      * @param user
      * @return
      */
-    @PostMapping("/getUserTweets")
+    @GetMapping("/getUserTweets")
     public R getUserTweets(User user){
         R result = personalHomePageService.getUserTweets(user);
 
