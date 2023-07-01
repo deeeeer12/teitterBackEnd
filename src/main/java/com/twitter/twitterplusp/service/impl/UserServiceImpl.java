@@ -212,7 +212,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getIsDeleted,0)
                         .orderByDesc(User::getFansCount)
-                                .last("limit 3");
+                                .last("limit 5");
         List<User> users = userMapper.selectList(queryWrapper);
 
         FansTop fansTop = new FansTop();
