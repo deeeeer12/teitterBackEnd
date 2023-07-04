@@ -78,7 +78,7 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
         tweet.setNickName(loginUser.getUser().getNickName());
         tweet.setUid(loginUser.getUser().getUid());
 
-        //若该request的parentTweetId != null，则代表该推文为回复推文
+        //若该request的parentTweetId != null，则代表该推文为回复推文，父推文的评论数+1
         if (!ObjectUtils.isEmpty(parentTweetId)){
             tweet.setParentTweetId(parentTweetId);
             //查出其父推文的Level
@@ -87,6 +87,12 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
             Tweet parTweet = tweetService.getOne(queryWrapper);
             Integer parLevel = parTweet.getLevel();
             tweet.setLevel(parLevel+1);
+
+            //根据parTweetId对父推文的评论数量进行+1
+            LambdaUpdateWrapper<Tweet> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(Tweet::getTweetId,parentTweetId)
+                    .setSql("`comment_count` = `comment_count` + 1");
+            tweetService.update(updateWrapper);
             //表示该推文是根推文，没有父
         } else {
             tweet.setLevel(0);

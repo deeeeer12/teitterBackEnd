@@ -22,7 +22,9 @@ public class WebSocketConfig implements WebMvcConfigurer, WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 
         registry.addHandler(chatController,"/teitter/v2/api/intoChat")
-                .addInterceptors(httpSessionHandshakeInterceptor);
+                .addInterceptors(httpSessionHandshakeInterceptor)
+                .setAllowedOrigins("*");
+//                .withSockJS();
     }
 
 }

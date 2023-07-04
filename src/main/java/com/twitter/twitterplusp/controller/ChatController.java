@@ -8,20 +8,32 @@ import com.twitter.twitterplusp.common.RequestMessage;
 import com.twitter.twitterplusp.common.ResponseMessage;
 import com.twitter.twitterplusp.entity.LetterInfo;
 import com.twitter.twitterplusp.entity.LetterRelation;
+import com.twitter.twitterplusp.entity.LoginUser;
 import com.twitter.twitterplusp.entity.User;
 import com.twitter.twitterplusp.service.LetterInfoService;
 import com.twitter.twitterplusp.service.LetterRelationService;
 import com.twitter.twitterplusp.service.UserService;
+import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import com.twitter.twitterplusp.utils.OnlineUserManager;
 import com.twitter.twitterplusp.utils.RedisCache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.PathParam;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,12 +67,13 @@ public class ChatController extends TextWebSocketHandler {
 
         ResponseMessage responseMessage = new ResponseMessage();
         // 1. 首先判断当前用户是否已经登录, 防止用户多开
+
         User user = (User) session.getAttributes().get("user");
 
         if(onlineUserManager.getState(user.getUid()) != null) {
             responseMessage.setStatus(400);
             responseMessage.setMessage("当前用户已经登录了, 不要重复登录");
-            session.sendMessage(new TextMessage(mapper.writeValueAsBytes(responseMessage)));
+            session.sendMessage(new TextMessage(mapper.writeValueAsString(responseMessage)));
             return;
         }
         // 2. 将用户的在线状态设置为在线
@@ -72,6 +85,7 @@ public class ChatController extends TextWebSocketHandler {
 
         //当前登录用户的uid
         Long uid = user.getUid();
+        System.out.println(uid);
         //调用封装方法，查询所有聊过天的用户
         List<User> allUsers = getAllUsers(uid);
         //聊过天的人

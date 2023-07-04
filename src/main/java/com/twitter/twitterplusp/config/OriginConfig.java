@@ -11,7 +11,8 @@ public class OriginConfig implements WebMvcConfigurer {
 
         registry.addMapping("/**")
                 .allowedOriginPatterns("https://teitter.cuijunyu.win")
-//                .allowedOriginPatterns("ws://www.heron.love:8070")
+                .allowedOrigins("wss://www.heron.love:8070/teitter/v2/api/intoChat")
+//                .allowedOriginPatterns("wss://www.heron.love:8070")
                 .allowedHeaders("*")
                 .allowedMethods("*")
                 .allowCredentials(true)
