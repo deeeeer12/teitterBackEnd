@@ -2,13 +2,13 @@ package com.twitter.twitterplusp.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.twitter.twitterplusp.common.R;
 import com.twitter.twitterplusp.entity.*;
+import com.twitter.twitterplusp.mapper.LetterRelationMapper;
 import com.twitter.twitterplusp.mapper.UserMapper;
-import com.twitter.twitterplusp.service.TweetService;
-import com.twitter.twitterplusp.service.UserRoleService;
-import com.twitter.twitterplusp.service.UserService;
+import com.twitter.twitterplusp.service.*;
 import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import com.twitter.twitterplusp.utils.RedisCache;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +41,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private RedisCache redisCache;
 
     @Autowired
+    private LetterInfoService letterInfoService;
+
+    @Autowired
+    private LetterRelationService relationService;
+
+
+    @Autowired
     private UserMapper userMapper;
 
     public static final String BASE_URL = "https://www.heron.love:8888/";
@@ -68,9 +75,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         LoginUser loginUser = (LoginUser) authenticationToken.getPrincipal();
+        Long uid = loginUser.getUser().getUid();
+
+        LambdaQueryWrapper<LetterRelation> queryLetterRelation = new LambdaQueryWrapper<>();
+        queryLetterRelation.eq(LetterRelation::getSendUserId,uid).or().eq(LetterRelation::getReceiveUserId,uid);
+
+        //查询出跟当前登录用户有关联的私信id
+        List<LetterRelation> letterRelations = relationService.getBaseMapper().selectList(queryLetterRelation);
+
+        Integer letterCount = 0;
+        for (LetterRelation letterRelation : letterRelations) {
+            LambdaQueryWrapper<LetterInfo> queryLetterInfo = new LambdaQueryWrapper<>();
+            queryLetterInfo.eq(LetterInfo::getRelationId,letterRelation.getId())
+                    .eq(LetterInfo::getStatus,0);
+            int count = letterInfoService.count(queryLetterInfo);
+            letterCount +=count;
+        }
+
         Map<String,Object> map = new HashMap<>();
         map.put("status","201");
         map.put("msg","用户登录成功");
+        map.put("LetterCount",letterCount);
         map.put("isLogin",true);
         map.put("userInfo",loginUser.getUser());
         return map;

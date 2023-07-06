@@ -22,4 +22,6 @@ public class LetterInfo {
     @TableField(fill  = FieldFill.INSERT)//插入时填充字段
     private Long createDate;
 
+    private Integer status;//已读状态 0未读，1已读
+
 }
