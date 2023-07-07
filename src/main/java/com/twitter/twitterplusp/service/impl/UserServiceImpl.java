@@ -87,7 +87,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         for (LetterRelation letterRelation : letterRelations) {
             LambdaQueryWrapper<LetterInfo> queryLetterInfo = new LambdaQueryWrapper<>();
             queryLetterInfo.eq(LetterInfo::getRelationId,letterRelation.getId())
-                    .eq(LetterInfo::getStatus,0);
+                    .eq(LetterInfo::getStatus,0)
+                    .ne(LetterInfo::getSendUserId,uid);
             int count = letterInfoService.count(queryLetterInfo);
             letterCount +=count;
         }

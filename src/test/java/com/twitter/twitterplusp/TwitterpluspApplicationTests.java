@@ -13,8 +13,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -25,8 +28,29 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SpringBootTest
+@SpringBootTest(classes = TwitterpluspApplication.class)
+@RunWith(SpringRunner.class)
 class TwitterpluspApplicationTests {
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
+
+    @Test
+    void testRouter(){
+        rabbitTemplate.convertAndSend("directs","info","发送info的key路由信息");
+    }
+
+    @Test
+    void testFanout(){
+        rabbitTemplate.convertAndSend("logs","","fanout的工作模型");
+    }
+
+    @Test
+    void testWork(){
+        for (int i = 0; i < 10; i++) {
+            rabbitTemplate.convertAndSend("work","work模型");
+        }
+    }
 
     @Test
     void contextLoads() throws Exception {

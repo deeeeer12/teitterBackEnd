@@ -56,13 +56,13 @@ public class HttpSessionHandshakeInterceptor implements HandshakeInterceptor {
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
                                Exception exception) {
 
-        HttpServletRequest httpRequest = ((ServletServerHttpRequest) request).getServletRequest();
-        HttpServletResponse httpResponse = ((ServletServerHttpResponse) response).getServletResponse();
-        if (StringUtils.hasText(httpRequest.getHeader("Sec-WebSocket-Protocol"))) {
-            httpResponse.addHeader("Sec-WebSocket-Protocol", httpRequest.getHeader("Sec-WebSocket-Protocol"));
-        }
-        log.info("HandshakeInterceptor afterHandshake end...");
-
+//        HttpServletRequest httpRequest = ((ServletServerHttpRequest) request).getServletRequest();
+//        HttpServletResponse httpResponse = ((ServletServerHttpResponse) response).getServletResponse();
+//        if (StringUtils.hasText(httpRequest.getHeader("Sec-WebSocket-Protocol"))) {
+//            httpResponse.addHeader("Sec-WebSocket-Protocol", httpRequest.getHeader("Sec-WebSocket-Protocol"));
+//        }
+//        log.info("HandshakeInterceptor afterHandshake end...");
+//
 
     }
 }

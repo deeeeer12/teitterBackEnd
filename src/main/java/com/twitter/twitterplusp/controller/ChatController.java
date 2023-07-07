@@ -148,6 +148,7 @@ public class ChatController extends TextWebSocketHandler {
 
                     LambdaUpdateWrapper<LetterInfo> updateLetterInfo = new LambdaUpdateWrapper<>();
                     updateLetterInfo.eq(LetterInfo::getRelationId,relationId)
+                            .eq(LetterInfo::getSendUserId,user.getUid())
                             .set(LetterInfo::getStatus,1);
                     letterInfoService.update(updateLetterInfo);//更新聊天信息为已读状态
                     message1.setMessage(letterInfo.getContent());//设置上该条消息的内容

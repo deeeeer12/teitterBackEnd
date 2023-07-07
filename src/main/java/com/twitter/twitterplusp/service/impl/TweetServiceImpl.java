@@ -71,7 +71,7 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
             return R.error("请先登录再发忒");
         }
 
-        if (tweet.getContent() == "") {
+        if (tweet.getContent() == null) {
             return R.error("内容不能为空");
         }
 
@@ -93,7 +93,33 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
             updateWrapper.eq(Tweet::getTweetId,parentTweetId)
                     .setSql("`comment_count` = `comment_count` + 1");
             tweetService.update(updateWrapper);
-            //表示该推文是根推文，没有父
+
+            //向消息详情表中存储相关信息
+            MessageInfo messageInfo = new MessageInfo();
+            messageInfo.setComment(tweet.getContent());
+            messageInfo.setMsgType(2);
+            messageInfo.setTweetId(parTweet.getTweetId());
+            LambdaQueryWrapper<Tweet> queryPar = new LambdaQueryWrapper<>();
+            queryPar.eq(Tweet::getTweetId,tweet.getTweetId());
+            Tweet parentTweet = tweetService.getOne(queryWrapper);
+            String parentContent = parentTweet.getContent();
+            if(parentContent.length()>30){
+                parentContent = parentContent.substring(0,30);
+            }
+            messageInfo.setContent(parentContent+"... ...");
+            messageInfoService.save(messageInfo);
+            Long msgInfoId = messageInfo.getMsgInfoId();
+
+            //向消息通知表中存储相关信息
+            Message message = new Message();
+            message.setSenderId(loginUser.getUser().getUid());
+            LambdaQueryWrapper<Tweet> qw = new LambdaQueryWrapper<>();
+            qw.eq(Tweet::getTweetId,parentTweet.getTweetId());
+            Tweet twt = tweetService.getOne(qw);
+            message.setReceiverId(twt.getUid());
+            message.setMsgInfoId(msgInfoId);
+            messageService.save(message);
+
         } else {
             tweet.setLevel(0);
         }
