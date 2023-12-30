@@ -5,17 +5,17 @@ spring:
 #    url: jdbc:mysql://localhost:3307/teitter?characterEncoding=utf-8&useSSL=false
 #    url: jdbc:mysql://localhost:3307/teitterold?characterEncoding=utf-8&useSSL=false
 #    url: jdbc:mysql://117.78.0.131:3306/teitterplusp?characterEncoding=utf-8&useSSL=true
-    url: jdbc:mysql://117.78.0.131:3306/teitterpluspnew?characterEncoding=utf-8&useSSL=false
-    username: root
-    password: 821552
+    url: jdbc:mysql://47.99.155.86:3306/twitter?characterEncoding=utf-8&useSSL=false
+    username: Glu
+    password: Gl821552133
   main:
     allow-circular-references: true
   jackson:
     default-property-inclusion: non_empty #全局控制，过滤掉传给前端的null和空值
   redis:
-    host: 117.78.0.131
+    host: 47.99.155.86
     port: 6379
-    password: 821552
+    password: Gl821552133
   servlet:
     multipart:
       max-file-size: 20MB
@@ -44,12 +44,16 @@ server:
 #    key-store-password: 31un3zoq
 #    key-store-type: JKS
 #    enabled: true
+#  ssl:
+#    key-store-password: 4q57gk132f237r
+#    key-store-type: JKS
+#    key-store: classpath:heron.love.jks
+#    enabled: true
   ssl:
-    key-store-password: 4q57gk132f237r
+    key-store-password: pmcqnfmi
     key-store-type: JKS
-    key-store: classpath:heron.love.jks
+    key-store: classpath:teitter.heron.ltd.jks
     enabled: true
-
 
 ######### 自定义 ##########
 

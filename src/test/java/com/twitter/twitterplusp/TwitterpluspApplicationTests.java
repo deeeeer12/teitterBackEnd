@@ -20,7 +20,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,6 +74,22 @@ class TwitterpluspApplicationTests {
 
         System.out.println("Response Code: " + responseCode);
         System.out.println("Response Body: " + response.toString());
+    }
+
+    @Test
+    void testTimestampToDate(){
+        long l = System.currentTimeMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String format = sdf.format(1687331688576L);
+        System.out.println(format);
+    }
+
+    @Test
+    void testDateToTimestamp() throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = sdf.parse("2023-06-21 15:14:48");
+        long time = date.getTime();
+        System.out.println(time);
     }
 
 }
