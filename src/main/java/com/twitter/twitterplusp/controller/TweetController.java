@@ -30,9 +30,9 @@ public class TweetController {
      * @return
      */
     @PostMapping("/sendTwt")
-    public R send(Tweet tweet,String topicName){
+    public R send(Tweet tweet,String topicName,Long parentTweetId){
         LoginUser loginUser = GetLoginUserInfo.getLoginUser();
-        R result = tweetService.send(tweet,topicName,loginUser);
+        R result = tweetService.send(tweet,topicName,loginUser,parentTweetId);
         return result;
     }
 

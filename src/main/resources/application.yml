@@ -21,6 +21,12 @@ spring:
       max-file-size: 20MB
       enabled: true
       max-request-size: 1000MB
+  rabbitmq:
+    host: 117.78.0.131
+    port: 5672
+    username: guest
+    password: guest
+
 #  jackson:
 #    date-format: yyyyMMdd
 #    time-zone: GMT+8

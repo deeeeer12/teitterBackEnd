@@ -27,6 +27,7 @@ public class CommentController {
      * @param tweetId
      * @return
      */
+    //现在已将添加评论功能合并到发送推文功能。请到
     @PostMapping("/addComment")
     public R<String> addComment(String content, Long tweetId){
         //从SecurityContextHolder中取出用户信息

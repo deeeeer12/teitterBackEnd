@@ -1,6 +1,7 @@
 package com.twitter.twitterplusp.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twitter.twitterplusp.common.Message;
@@ -8,20 +9,32 @@ import com.twitter.twitterplusp.common.RequestMessage;
 import com.twitter.twitterplusp.common.ResponseMessage;
 import com.twitter.twitterplusp.entity.LetterInfo;
 import com.twitter.twitterplusp.entity.LetterRelation;
+import com.twitter.twitterplusp.entity.LoginUser;
 import com.twitter.twitterplusp.entity.User;
 import com.twitter.twitterplusp.service.LetterInfoService;
 import com.twitter.twitterplusp.service.LetterRelationService;
 import com.twitter.twitterplusp.service.UserService;
+import com.twitter.twitterplusp.utils.GetLoginUserInfo;
 import com.twitter.twitterplusp.utils.OnlineUserManager;
 import com.twitter.twitterplusp.utils.RedisCache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.PathParam;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,24 +67,29 @@ public class ChatController extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
         ResponseMessage responseMessage = new ResponseMessage();
-        // 1. 首先判断当前用户是否已经登录, 防止用户多开
+
+
         User user = (User) session.getAttributes().get("user");
 
-        if(onlineUserManager.getState(user.getUid()) != null) {
-            responseMessage.setStatus(400);
-            responseMessage.setMessage("当前用户已经登录了, 不要重复登录");
-            session.sendMessage(new TextMessage(mapper.writeValueAsBytes(responseMessage)));
-            return;
-        }
+        // 1. 首先判断当前用户是否已经登录, 防止用户多开
+//        if(onlineUserManager.getState(user.getUid()) != null) {
+//            responseMessage.setStatus(400);
+//            responseMessage.setMessage("当前用户已经登录了, 不要重复登录");
+//            session.sendMessage(new TextMessage(mapper.writeValueAsString(responseMessage)));
+//            return;
+//        }
         // 2. 将用户的在线状态设置为在线
         onlineUserManager.enterHall(user.getUid(),session);
+
         // 3. 从数据库中查找所有聊过天的人
         // 4. 设置响应类, 并添加对应的信息
+
         responseMessage.setStatus(200);
         responseMessage.setMessage("getChats");
 
         //当前登录用户的uid
         Long uid = user.getUid();
+        System.out.println(uid);
         //调用封装方法，查询所有聊过天的用户
         List<User> allUsers = getAllUsers(uid);
         //聊过天的人
@@ -83,6 +101,7 @@ public class ChatController extends TextWebSocketHandler {
 
     }
 
+    @Transactional
     //连接成功后收到的响应
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         ResponseMessage responseMessage = new ResponseMessage();
@@ -126,9 +145,21 @@ public class ChatController extends TextWebSocketHandler {
                 List<Message> messages = new ArrayList<>();
                 for (LetterInfo letterInfo : letterInfos) {
                     Message message1 = new Message();
+
+                    LambdaUpdateWrapper<LetterInfo> updateLetterInfo = new LambdaUpdateWrapper<>();
+                    updateLetterInfo.eq(LetterInfo::getRelationId,relationId)
+                            .eq(LetterInfo::getSendUserId,user.getUid())
+                            .set(LetterInfo::getStatus,1);
+                    letterInfoService.update(updateLetterInfo);//更新聊天信息为已读状态
                     message1.setMessage(letterInfo.getContent());//设置上该条消息的内容
                     message1.setUserId(letterInfo.getSendUserId());//设置当前消息是谁发送的
                     message1.setSender(user.getUid().equals(letterInfo.getSendUserId()));//判断当前登录用户是否为该条消息的发送者
+                    //2.a.4查询每条聊天记录的时间日期，封装进message1中
+                    LambdaQueryWrapper<LetterInfo> queryLetterDate = new LambdaQueryWrapper<>();
+                    queryLetterDate.eq(LetterInfo::getId,letterInfo.getId());
+                    LetterInfo letter = letterInfoService.getOne(queryLetterDate);
+                    String createDate = String.valueOf(letter.getCreateDate());
+                    message1.setDate(createDate);
                     messages.add(message1);
                 }
                 responseMessage.setMessages(messages);
@@ -149,7 +180,10 @@ public class ChatController extends TextWebSocketHandler {
             //根据两者的uid去letter_relation表中查询relationId
             LambdaQueryWrapper<LetterRelation> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(LetterRelation::getSendUserId,fromId)
-                            .eq(LetterRelation::getReceiveUserId,toId);
+                        .eq(LetterRelation::getReceiveUserId,toId)
+                    .or()
+                        .eq(LetterRelation::getSendUserId,toId)
+                        .eq(LetterRelation::getReceiveUserId,fromId);
             LetterRelation letterRelationEntity = relationService.getOne(queryWrapper);
             Long relationId = null;
             //2.b.2判断当前的relationId是否为空，若为空则在letter_relation表中创建该聊天关系，然后再获取其relationId
@@ -162,31 +196,34 @@ public class ChatController extends TextWebSocketHandler {
             }
             //2.b.3根据relationId，在聊天表里添加数据
             String content = requestMessage.getContent();
-            LetterInfo letterInfo = new LetterInfo(null,fromId,letterRelationEntity.getId(),content,null);
+            LetterInfo letterInfo = new LetterInfo(null,fromId,letterRelationEntity.getId(),content,null,null);
             letterInfoService.save(letterInfo);
             //2.b.4设置对应的响应信息
             responseMessage.setStatus(200);
             responseMessage.setMessage("sendMessage");
             //2.b.5获取两者用户的session, 并判断是否在线, 给在线的用户返回响应, 刷新聊天框
             Message message1 = new Message();
+            Message message2 = new Message();
             WebSocketSession session1 = onlineUserManager.getState(fromId);
             WebSocketSession session2 = onlineUserManager.getState(toId);
             if (session1!=null){
                 message1.setSender(true);
                 message1.setMessage(content);
                 message1.setUserId(fromId);
-                List<Message> list = new ArrayList<>();
-                list.add(message1);
-                responseMessage.setMessages(list);
+                message1.setDate(String.valueOf(System.currentTimeMillis()));
+                List<Message> list1 = new ArrayList<>();
+                list1.add(message1);
+                responseMessage.setMessages(list1);
                 session1.sendMessage(new TextMessage(mapper.writeValueAsBytes(responseMessage)));
             }
             if (session2!=null){
-                message1.setSender(false);
-                message1.setMessage(content);
-                message1.setUserId(toId);
-                List<Message> list = new ArrayList<>();
-                list.add(message1);
-                responseMessage.setMessages(list);
+                message2.setSender(false);
+                message2.setMessage(content);
+                message2.setUserId(toId);
+                message2.setDate(String.valueOf(System.currentTimeMillis()));
+                List<Message> list2 = new ArrayList<>();
+                list2.add(message2);
+                responseMessage.setMessages(list2);
                 session2.sendMessage(new TextMessage(mapper.writeValueAsBytes(responseMessage)));
             }
         }
@@ -196,11 +233,13 @@ public class ChatController extends TextWebSocketHandler {
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
         User user = (User) session.getAttributes().get("user");
+
         WebSocketSession webSocketSession = onlineUserManager.getState(user.getUid());
         if(webSocketSession == session) {
             // 2. 设置在线状态
             onlineUserManager.exitHall(user.getUid());
         }
+
         System.out.println("用户"+user.getNickName()+"退出");
     }
 
@@ -213,6 +252,7 @@ public class ChatController extends TextWebSocketHandler {
             // 2. 设置在线状态
             onlineUserManager.exitHall(user.getUid());
         }
+
         System.out.println("用户"+user.getNickName()+"退出");
     }
 
@@ -226,7 +266,8 @@ public class ChatController extends TextWebSocketHandler {
         BaseMapper<LetterRelation> baseMapper = relationService.getBaseMapper();
         LambdaQueryWrapper<LetterRelation> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(LetterRelation::getSendUserId,uid)
-                        .or().eq(LetterRelation::getReceiveUserId,uid);
+                        .or()
+                .eq(LetterRelation::getReceiveUserId,uid);
         List<LetterRelation> letterRelations = baseMapper.selectList(queryWrapper);
 
         //用来存放与当前用户有过聊天的其他用户的id
@@ -270,7 +311,7 @@ public class ChatController extends TextWebSocketHandler {
         map.put("toId",receiveUserId);
 
         return map;
-
     }
+
 
 }

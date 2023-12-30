@@ -62,27 +62,73 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
      * @param tweet
      * @param topicName
      * @param loginUser
+     * @param parentTweetId
      * @return
      */
-    public R send(Tweet tweet, String topicName, LoginUser loginUser) {
+    public R send(Tweet tweet, String topicName, LoginUser loginUser, Long parentTweetId) {
 
         if (loginUser == null) {
             return R.error("请先登录再发忒");
         }
 
-        if (tweet.getContent() == "") {
+        if (tweet.getContent() == null) {
             return R.error("内容不能为空");
         }
 
         tweet.setNickName(loginUser.getUser().getNickName());
         tweet.setUid(loginUser.getUser().getUid());
-        tweet.setLevel(0);
+
+        //若该request的parentTweetId != null，则代表该推文为回复推文，父推文的评论数+1
+        if (!ObjectUtils.isEmpty(parentTweetId)){
+            tweet.setParentTweetId(parentTweetId);
+            //查出其父推文的Level
+            LambdaQueryWrapper<Tweet> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(Tweet::getTweetId,parentTweetId);
+            Tweet parTweet = tweetService.getOne(queryWrapper);
+            Integer parLevel = parTweet.getLevel();
+            tweet.setLevel(parLevel+1);
+
+            //根据parTweetId对父推文的评论数量进行+1
+            LambdaUpdateWrapper<Tweet> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(Tweet::getTweetId,parentTweetId)
+                    .setSql("`comment_count` = `comment_count` + 1");
+            tweetService.update(updateWrapper);
+
+            //向消息详情表中存储相关信息
+            MessageInfo messageInfo = new MessageInfo();
+            messageInfo.setComment(tweet.getContent());
+            messageInfo.setMsgType(2);
+            messageInfo.setTweetId(parTweet.getTweetId());
+            LambdaQueryWrapper<Tweet> queryPar = new LambdaQueryWrapper<>();
+            queryPar.eq(Tweet::getTweetId,tweet.getTweetId());
+            Tweet parentTweet = tweetService.getOne(queryWrapper);
+            String parentContent = parentTweet.getContent();
+            if(parentContent.length()>30){
+                parentContent = parentContent.substring(0,30);
+            }
+            messageInfo.setContent(parentContent+"... ...");
+            messageInfoService.save(messageInfo);
+            Long msgInfoId = messageInfo.getMsgInfoId();
+
+            //向消息通知表中存储相关信息
+            Message message = new Message();
+            message.setSenderId(loginUser.getUser().getUid());
+            LambdaQueryWrapper<Tweet> qw = new LambdaQueryWrapper<>();
+            qw.eq(Tweet::getTweetId,parentTweet.getTweetId());
+            Tweet twt = tweetService.getOne(qw);
+            message.setReceiverId(twt.getUid());
+            message.setMsgInfoId(msgInfoId);
+            messageService.save(message);
+
+        } else {
+            tweet.setLevel(0);
+        }
 
         //保存推文到数据库的推文表
         tweetService.save(tweet);
 
         //如果该推文绑定了话题，则去更新推文&话题表sys_topic_tweet
-        if (topicName!=null||!("".equals(topicName))){
+        if ((!ObjectUtils.isEmpty(parentTweetId))&&topicName!=null||!("".equals(topicName))){
             LambdaQueryWrapper<Topic> queryWrapperTopic = new LambdaQueryWrapper<>();
             queryWrapperTopic.eq(Topic::getTopicName,topicName);
             Topic topic = topicService.getOne(queryWrapperTopic);
@@ -93,42 +139,49 @@ public class TweetServiceImpl extends ServiceImpl<TweetMapper, Tweet> implements
                 topicAndTweet.setTweetId(tweet.getTweetId());
                 topicAndTweetService.save(topicAndTweet);
             }
-
         }
 
-        //通知该用户的粉丝，该用户更新了推文。
-        TreeSet<Fans> allFans = fansService.getAllFans(loginUser.getUser().getUid());
-        if (allFans!=null){
-            for(Fans fan:allFans){
-                //获取刚发送的推文的自增Id
-                Long tweetId = tweet.getTweetId();
+        //若parentTweetId为null
+        if (ObjectUtils.isEmpty(parentTweetId)){
+            //通知该用户的粉丝，该用户更新了推文。
+            TreeSet<Fans> allFans = fansService.getAllFans(loginUser.getUser().getUid());
+            if (allFans!=null){
+                for(Fans fan:allFans){
+                    //获取刚发送的推文的自增Id
+                    Long tweetId = tweet.getTweetId();
 
-                //向消息详情表中存储相关信息
-                MessageInfo messageInfo = new MessageInfo();
-                messageInfo.setTitle(null);
-                LambdaQueryWrapper<Tweet> infoQueryWrapper = new LambdaQueryWrapper<>();
-                infoQueryWrapper.eq(Tweet::getTweetId,tweetId);
-                Tweet tweetServiceOne = tweetService.getOne(infoQueryWrapper);
+                    //向消息详情表中存储相关信息
+                    MessageInfo messageInfo = new MessageInfo();
+                    messageInfo.setTitle(null);
+                    LambdaQueryWrapper<Tweet> infoQueryWrapper = new LambdaQueryWrapper<>();
+                    infoQueryWrapper.eq(Tweet::getTweetId,tweetId);
+                    Tweet tweetServiceOne = tweetService.getOne(infoQueryWrapper);
 
-                //只取文章内容的前十个字符
-                String content = tweetServiceOne.getContent();
-                if(content.length()>30){
-                    content = content.substring(0,30);
+                    //只取文章内容的前十个字符
+                    String content = tweetServiceOne.getContent();
+                    if(content.length()>30){
+                        content = content.substring(0,30);
+                    }
+                    messageInfo.setContent(content+"... ...");
+                    messageInfo.setMsgType(5);
+                    messageInfo.setTweetId(tweet.getTweetId());
+                    messageInfoService.save(messageInfo);
+                    Long msgInfoId = messageInfo.getMsgInfoId();
+
+                    //向通知表中添加数据
+                    Long uid = fan.getUid();
+                    Message msg = new Message();
+                    msg.setSenderId(loginUser.getUser().getUid());
+                    msg.setReceiverId(uid);
+                    msg.setMsgInfoId(msgInfoId);
+                    messageService.save(msg);
                 }
-                messageInfo.setContent(content+"... ...");
-                messageInfo.setMsgType(5);
-                messageInfo.setTweetId(tweet.getTweetId());
-                messageInfoService.save(messageInfo);
-                Long msgInfoId = messageInfo.getMsgInfoId();
-
-                //向通知表中添加数据
-                Long uid = fan.getUid();
-                Message msg = new Message();
-                msg.setSenderId(loginUser.getUser().getUid());
-                msg.setReceiverId(uid);
-                msg.setMsgInfoId(msgInfoId);
-                messageService.save(msg);
             }
+        }
+
+        //若parTweetId != null 表示该推文为评论推文
+        if (!ObjectUtils.isEmpty(parentTweetId)){
+            return R.success(null,"评论成功");
         }
 
         return R.success(null,"发忒成功");

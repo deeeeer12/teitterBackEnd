@@ -38,25 +38,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-//    @Override
-//    public void configure(WebSecurity web) throws Exception {
-//        web.ignoring().antMatchers("/teitter/api/tweet/getAllTweet/{pageNum}");
-//    }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
 //                //登陆时进入的url-->相当于进入登陆页面
-//                .formLogin().loginPage("/teitter/api/user/login")
-//                // 告诉spring-security点击登陆时访问的url为/teitter/api/user/login ---->当spring-security接收到此url的请求后,会自动调用
-//                // com.nrsc.security.security.action.NRSCDetailsService中的loadUserByUsername
-//                // 进行登陆校验
-//                .loginProcessingUrl("/teitter/api/tweet/getAllTweet/")
-////                //指定使用NRSCAuthenticationSuccessHandler处理登陆成功后的行为
-////                .successHandler(NRSCAuthenticationSuccessHandler)
-//                //指定使用NNRSCAuthenticationFailureHandler处理登陆失败后的行为
-//                .failureHandler(NRSCAuthenticationFailureHandler)
-//                .and()
                 //关闭csrf
                 .csrf().disable()
                 //不通过Session获取SecurityContext，因为前后端分离项目用不了session
@@ -67,9 +52,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/teitter/v2/api/user/login").anonymous()
 //                .antMatchers("/teitter/api/intoChat").anonymous()
                 //无论登录没登录，都可以访问
+                .antMatchers("/teitter/v2/api/intoChat").permitAll()
                 .antMatchers("/teitter/v2/api/news/getHot").permitAll()
                 .antMatchers("/teitter/v2/api/user/isLogin").permitAll()
                 .antMatchers("/teitter/v2/api/user/regist").permitAll()
+                .antMatchers("/teitter/v2/api/chart/getgetFansTop").permitAll()
                 .antMatchers("/teitter/v2/api/tweet/getAllTweet").permitAll()
                 .antMatchers("/teitter/v2/api/tweet/getUserTweet/{uid}").permitAll()
                 .antMatchers("/teitter/v2/api/comment/getComment/{tweetId}").permitAll()

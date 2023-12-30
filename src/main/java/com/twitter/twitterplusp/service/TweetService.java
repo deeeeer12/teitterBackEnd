@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface TweetService extends IService<Tweet> {
 
-    R send(Tweet tweet, String topicName, LoginUser loginUser);
+    R send(Tweet tweet, String topicName, LoginUser loginUser, Long parentTweetId);
 
     /**
      * 获取全部忒文

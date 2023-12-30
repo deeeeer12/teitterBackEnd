@@ -65,7 +65,13 @@ public class GlobalExceptionHandler {
         return R.error(ex.getMessage());
     }
 
-
-
+    @ExceptionHandler(NullPointerException.class)
+    public R<String> exceptionHandler(NullPointerException ex){
+        if (ex.getMessage().contains("Closing session")){
+            String msg = "webSocket空指针异常";
+            return R.error(msg);
+        }
+        return R.error("未知错误");
+    }
 
 }
